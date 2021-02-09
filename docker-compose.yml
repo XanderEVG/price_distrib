@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  database:
+    image: postgres
+    restart: always
+    ports:
+      - 8765:5432
+    environment:
+      POSTGRES_USER: postgre
+      POSTGRES_PASSWORD: "qweqwe"
+    volumes:
+      - /home/xander/docker_data/price_distrib:/var/lib/postgresql/data

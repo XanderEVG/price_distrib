@@ -1,0 +1,1152 @@
+@import 'addons'
+
+@font-face
+    font-family: 'sssicons'
+    src: url('../fonts/sssicons.eot?93887631')
+    src: url('../fonts/sssicons.eot?93887631#iefix') format('embedded-opentype'),url('../fonts/sssicons.woff?93887631') format('woff'),url('../fonts/sssicons.ttf?93887631') format('truetype'),url('../fonts/sssicons.svg?93887631#sssicons') format('svg')
+    font-weight: normal
+    font-style: normal
+
+[class^="icon-"]:before, [class*="icon-"]:before
+    font-family: "sssicons"
+    font-style: normal
+    font-weight: normal
+    speak: none
+    display: inline-block
+    text-decoration: inherit
+    width: 1em
+    text-align: center
+    font-variant: normal
+    text-transform: none
+    line-height: 1em
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
+
+.icon-real:before
+    content: '\e800'
+.icon-int:before
+    content: '\e801'
+.icon-math:before
+    content: '\e802'
+    font-size: 22px
+.icon-date:before
+    content: '\e803'
+    font-size: 22px
+.icon-list:before
+    content: '\e804'
+    font-size: 22px
+.icon-text:before
+    content: '\e805'
+    font-size: 22px
+.icon-location:before
+    content: '\e806'
+    font-size: 22px
+.icon-orgs:before
+    content: '\e807'
+    font-size: 22px
+.icon-bool:before
+    content: '\e808'
+.icon-link:before
+    content: '\e809'
+    font-size: 22px
+.icon-file:before
+    content: '\e80a'
+    font-size: 22px
+
+html
+    font-size: 16px
+
+.hidden
+    display: none
+
+#app
+    font-family: 'Roboto', sans-serif
+    color: $basecolor
+    background: #FBFAF9
+
+*
+    outline: none
+
+.fxd
+    position: fixed
+    left: 0
+    right: 0
+    z-index: 90
+
+.line-width-hidden
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+.msg
+    color: #ffffff
+    font-weight: 400
+    padding: 15px
+    margin: 30px 0
+
+.msg__error
+    background: #ff5252
+
+.msg__success
+    background: #21A357
+
+.no-pad
+    padding-top: 0
+    padding-bottom: 0
+
+.v-application .error--text .v-input__slot
+    border: 1px solid #ff5252 !important
+
+.m_logo
+    width: 252px
+
+.full-height
+    height: 100vh
+    margin-top: 0
+    margin-bottom: 0
+
+.i-refresh
+    height: 28px
+    background: url('../../public/img/refresh.svg') no-repeat
+    margin-top: 6px
+    cursor: pointer
+    width: 25px
+    margin-left: 22px
+
+.dn
+    display: none
+
+.bt
+    text-transform: none
+    font-size: .875rem !important
+    letter-spacing: 0
+    border-radius: 0
+    padding: 0px 34px !important
+    height: 35px !important
+    margin-right: 10px
+
+    &:last-child
+        margin-right: 0
+
+.bt-success
+    color: #fff !important
+    background-color: #21A357 !important
+
+.bt-danger
+    color: #fff !important
+    background-color: #D1483D !important
+
+.bt-muted
+    background-color: #f5f5f5 !important
+
+.v-size--small
+    padding: 0px 10px !important
+
+.login-right-col
+    @extend %full_center
+
+.login-left-col
+    position: relative
+    background-size: cover
+    @extend %full_center
+
+    &::before
+        position: absolute
+        content: ""
+        left: 0
+        right: 0
+        top: 0
+        bottom: 0
+        background: rgba(37, 63, 75, .6)
+
+.logo-description
+    color: #fff
+    text-align: center
+    position: relative
+    padding: 22px
+    font-size: 1.25rem
+
+.login-form
+    width: 80%
+    position: relative
+
+    &__title
+        font-size: 2.25rem
+        font-weight: 500
+        text-align: center
+
+    &__spacer
+        padding-top: 30px
+
+    &__input
+
+        .v-input__slot
+            border: 1px solid #9DACBF
+            border-radius: 0
+
+    .v-text-field__details
+        display: none
+
+    &__btn
+        color: #fff !important
+        border-radius: 0
+        text-transform: none
+        height: 48px !important
+        width: 286px
+        font-size: 1rem !important
+
+.text-muted
+    color: #96A7BA !important
+    font-size: 0.875rem
+
+.t10
+    margin-top: 10px
+
+.logo-wrap
+    text-decoration: none
+    line-height: 1.1
+    color: #fff
+
+    .logo-name
+        font-size: 0.875rem
+        color: #fff
+        text-decoration: none
+
+.full-container
+    padding-left: 50px
+    padding-right: 50px
+
+.search-container
+    margin-top: 88px
+
+.search-input
+    font-size: 1.125rem
+
+    .v-input__slot
+        border-radius: 0
+        border: 1px solid #9DACBF
+
+    .v-text-field__slot
+        margin-left: 7px
+
+        label
+            color: $darkblue
+
+    .v-text-field__details
+        display: none
+
+.input-rounded
+    .v-input__slot
+        border-radius: 100px
+        @extend %mini-shadow
+
+.fade-enter-active, .fade-leave-active
+    transition: opacity .3s
+
+.fade-enter, .fade-leave-to
+    opacity: 0
+
+.phantom-link
+    position: absolute
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    background: rgba(0,0,0, .7)
+    color: #fff
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 28px
+    font-weight: 500
+
+.right-arrow
+    width: 20px
+    height: 26px
+    background: url("../../public/img/right-big-arrow.svg") no-repeat
+    display: inline-block
+
+.city-card
+    font-family: 'Roboto', sans-serif
+    background: #fff
+    border: 1px solid
+    color: #5eb5e0 !important
+    border-color: #E1E1E1 !important
+    border-radius: 0 !important
+    min-height: 50px
+    cursor: pointer
+    &:hover
+        background: #eee
+
+
+    &__content
+        padding: 12px
+
+    &__title
+        font-weight: 500
+        font-size: 1.25rem
+        line-height: 1.1
+        margin-bottom: 5px
+
+    &__description
+        font-size: 0.875rem
+        line-height: 1.3
+
+    &__ext
+        border-top: 1px solid #C4C4C4
+        padding-top: 9px
+        padding-bottom: 9px
+        margin-top: 16px
+        font-weight: bold
+        font-size: 0.875rem
+
+        a
+            font-weight: normal
+
+    &__owner-item
+        line-height: 1.3
+        margin-top: 5px
+        font-weight: bold
+
+        &:first-child
+            margin-top: 10px
+
+    &__icons
+        text-align: right
+        padding-top: 10px !important
+
+        img
+            width: 38px
+            margin: 0 2px
+
+        @media screen and (max-width: 1266px)
+            text-align: left
+
+.city-card__active
+    box-shadow: 0px 12px 15px 0px rgba(0,0,0,0.4)!important
+    z-index: 100
+
+.city-card-edit
+    border: 2px dashed #52BB7F !important
+
+.city-card-edit__active
+    border: 1px solid #52BB7F !important
+
+.add-card
+    position: absolute
+    left: 0
+    top: 0
+    right: 0
+    bottom: 0
+    display: flex
+    align-items: center
+    justify-content: center
+    z-index: 12
+    color: #fff
+    text-decoration: none
+    @extend %tra
+
+    span
+        color: #fff
+        text-decoration: none
+        font-weight: bold
+
+    &:hover
+        background: #52BB7F
+
+
+.shop-card
+    font-family: 'Roboto', sans-serif
+    background: #fff
+    border: 1px solid
+    color: #5eb5e0 !important
+    border-color: #E1E1E1 !important
+    border-radius: 0 !important
+    min-height: 50px
+    cursor: pointer
+    &:hover
+        background: #eee
+
+
+    &__content
+        padding: 12px
+
+    &__title
+        font-weight: 500
+        font-size: 1.25rem
+        line-height: 1.1
+        margin-bottom: 5px
+
+    &__description
+        font-size: 0.875rem
+        line-height: 1.3
+
+    &__ext
+        border-top: 1px solid #C4C4C4
+        padding-top: 9px
+        padding-bottom: 9px
+        margin-top: 16px
+        font-weight: bold
+        font-size: 0.875rem
+
+        a
+            font-weight: normal
+
+    &__owner-item
+        line-height: 1.3
+        margin-top: 5px
+        font-weight: bold
+
+        &:first-child
+            margin-top: 10px
+
+    &__icons
+        text-align: right
+        padding-top: 10px !important
+
+        img
+            width: 38px
+            margin: 0 2px
+
+        @media screen and (max-width: 1266px)
+            text-align: left
+
+.shop-card__active
+    box-shadow: 0px 12px 15px 0px rgba(0,0,0,0.4)!important
+    z-index: 100
+
+.shop-card-edit
+    border: 2px dashed #52BB7F !important
+
+.shop-card-edit__active
+    border: 1px solid #52BB7F !important
+
+
+
+.custom-sidebar
+    background-color: #30505F !important
+    top: 60px !important
+    max-height: calc(100% - 60px) !important
+    padding-bottom: 25px
+
+    .v-icon
+        color: #a56b20
+
+    &__collapse
+        text-align: right
+        font-weight: 500
+        font-size: 1rem
+        display: flex
+        align-items: center
+        justify-content: center
+        color: rgba(255,255,255, .54)
+        cursor: pointer
+        @extend %tra
+
+        .v-icon
+            color: rgba(255,255,255, .54)
+            transform: rotate(180deg)
+            font-size: 2rem
+
+        .v-icon-normal
+            transform: rotate(0deg)
+
+        &:hover
+            color: #fff
+
+            .v-icon
+                color: #fff
+
+    .v-navigation-drawer__content
+        display: flex
+        flex-direction: column
+        justify-content: space-between
+
+    .v-list-item__title
+        color: #fff
+        width: 119px
+        font-size: 1rem!important
+        padding-top: 5px
+
+    .v-list-item--active
+        .v-list-item__title
+            color: #fff
+
+    .v-list-group--active
+        .v-list-group__items
+            border-top: 1px solid #D66279
+            border-bottom: 1px solid #D66279
+            margin: 0 17px
+
+        .v-icon
+            color: #fff
+
+    .v-list-item__icon
+        i
+            color: #fff
+
+    .v-list-item__action
+        margin-right: 7px !important
+
+        .v-icon
+            font-size: 25px
+
+    .v-list-item--active
+        .v-icon
+            color: #47B777
+
+    .list-item-group-show
+        .v-list-item--active
+            .v-icon, .v-list-item__title
+                color: #fff !important
+
+    .v-list-group__header__append-icon
+        min-width: auto !important
+    .v-list-item:hover
+        .v-icon
+            color: #cf8d22
+
+    .v-list-item--active:hover
+        .v-icon
+            color: #4acf8c
+
+.v-navigation-drawer--mini-variant
+    .v-list-item
+        padding: 0!important
+        display: flex
+        justify-content: center
+
+    .v-list-item__action
+        margin-right: 0 !important
+
+.main-toolbar
+    position: fixed
+    left: 0
+    right: 0
+    height: 80px
+    z-index: 50
+
+.select-registry
+    align-items: center
+
+    .v-input__control
+        height: 100%
+
+
+    .v-input__slot
+        height: 100%
+        margin-bottom: 0 !important
+        border-radius: 0
+
+    .v-list-item__content
+        padding: 0
+
+    input
+        display: none !important
+
+    .v-input__icon
+        i
+            font-size: 18px
+.ti-w
+    width: 250px
+    height: 35px
+
+.nopadleft
+    .v-list-group__header
+        padding-left: 0 !important
+.jsb
+    justify-content: start
+    flex-wrap: wrap
+
+.page-spacer
+    padding: 0 40px
+
+.desktop-col-spacer
+    margin-left: 56px
+
+.v-select-list, .v-menu__content
+    border-radius: 0 !important
+
+.custom_form
+
+    .v-text-field__details
+        position: absolute
+        bottom: -23px
+        left: 0
+
+    .v-input__control
+        position: relative
+
+    .form-line
+        margin-bottom: 20px
+
+    .form-label
+        font-size: 0.875rem
+        font-weight: 500
+        line-height: 1.2
+        margin-top: -4px
+
+    .v-input__control
+        //min-height: 35px !important
+        color: #30505F
+
+        .v-input__slot
+            border-radius: 0
+            margin-bottom: 0
+
+            input
+                height: 35px
+    .textarea
+        font-size: 0.875rem
+
+        .v-input__slot
+            border: 1px solid #9DACBF
+            align-items: flex-start
+            position: relative
+
+        .v-label
+            font-size: 0.875rem
+            color: #96A7BA
+
+        .v-text-field__slot
+            height: 100%
+            align-items: flex-start
+
+        textarea
+            height: 100%
+            margin-top: 6px !important
+
+    .text-input
+        font-size: 0.875rem
+        border-radius: 0
+
+        .v-input__slot
+            height: 35px
+            min-height: 35px
+            border: 1px solid #9DACBF
+
+        input
+            &::placeholder
+                color: #96A7BA
+
+    .text-input__big
+        font-weight: 400
+        .v-input__slot
+            height: 45px
+
+    .v-input--is-focused
+        .v-input__slot
+            @extend %tra
+            @extend %mini-shadow
+            border: 1px solid #0097DD
+
+    .select
+        .v-input__slot
+            border: 1px solid #9DACBF
+            padding-right: 4px !important
+
+    .checkbox
+        margin: 0
+        padding: 0
+        height: 28px
+
+        label
+            font-size: 0.875rem
+
+        .v-messages
+            display: none
+
+        .v-input__control
+            min-height: 28px !important
+
+        .accent--text
+            color: $darkblue !important
+            caret-color: $darkblue !important
+
+    .file
+        .v-input__prepend-outer
+            display: none
+
+.card-spacer
+    padding: 0 11px 11px 11px
+
+.add-image
+    height: 120px
+    margin-bottom: 12px
+    position: relative
+    background: url(../../public/img/add-image-icon.svg) 19px center no-repeat #4AA873
+
+    &__area
+        color: #fff !important
+        text-decoration: none
+        font-weight: 500
+        @extend %abs0
+        display: flex
+        align-items: center
+        padding-left: 85px
+
+    &__teaser
+        background-size: cover
+        background-position: center
+        background-repeat: no-repeat
+        cursor: pointer
+        @extend %abs0
+
+.constructor
+    padding: 15px 100px 0 0
+    position: relative
+
+    &-head
+        border-bottom: 1px solid #C4C4C4
+        margin-bottom: 30px
+
+    &-phantom
+        position: absolute
+        top: 0
+        right: 0
+        left: 0
+        bottom: 0
+        @extend %tra
+
+    &-body
+        .constructor-label
+            color: #444D58
+            background: #F2F2F2
+            font-size: 0.875rem
+            padding: 4.6px 10px
+            cursor: pointer
+            transform: translate(0, 0)
+            margin: 10px
+            top: 0
+
+            &:hover
+                background: #444D58
+                color: #fff
+
+        .constructor-label-active
+            background: #444D58
+            color: #fff
+
+    &-area
+        position: relative
+        min-height: 330px
+        border: 2px dashed #30505F
+        padding: 15px
+        @extend %tra
+
+        &__title
+            text-align: center
+            width: 100%
+            font-size: 24px
+
+    &-area__active
+        background: rgba(48, 80, 95, .4)
+        border: 2px dashed transparent
+
+        .constructor-area__title
+            color: #fff
+
+    &-table
+        position: relative
+        display: flex
+
+        &__item
+            background: rgba(221,224,76, .42)
+            padding: 10px
+            margin: 10px
+            max-width: 185px
+            width: 185px
+            height: 40px
+            cursor: pointer
+            color: #253F4B
+
+        &__title
+            font-size: .875rem
+            overflow: hidden
+            white-space: nowrap
+            text-overflow: ellipsis
+            border: none
+            //background: rgba(238, 239, 176, 0.53)
+            min-height: 40px
+            display: flex
+            align-items: center
+            padding: 0 10px
+            font-weight: normal
+
+// Кастомки
+
+#preview-table, table#preview-table thead th
+    border: none !important
+    @extend %tra
+
+table#preview-table thead th:hover
+    background-color: rgba(238, 239, 176, 1) !important
+    color: inherit !important
+
+table#preview-table thead th.grouped:hover
+    background-color: green !important
+
+.fix-form
+    .v-input__control
+        min-height: 38px !important
+
+.toolbar-title-custom
+    font-size: 1rem
+    color: #fff
+    cursor: pointer
+    display: flex
+    align-items: flex-end
+
+.v-list
+    border-radius: 0
+
+.router-view__wrap
+    padding-top: 70px
+
+.v-list__spacer
+    padding-bottom: 10px
+    // border-bottom: 1px solid #D66279
+
+.search-select
+    position: relative
+
+    &__header
+        @extend %tra
+        cursor: pointer
+        color: #fff
+
+        .v-icon
+            @extend %tra
+            color: #fff
+            font-size: 1rem
+
+    &__header-active
+        color: #D66279
+
+        .v-icon
+            color: #D66279
+            transform: rotate(180deg)
+
+    &__body
+        position: absolute
+        top: 43px
+        left: -12px
+        background: #fff
+        padding: 13px
+        color: $darkblue
+        font-weight: 500
+        @extend %shadow
+        min-width: 400px
+        min-height: 319px
+
+        &-item
+            padding: 3px 5px
+            margin-top: 2px
+            cursor: pointer
+            line-height: 1.4
+            font-weight: normal
+
+            &:hover
+                background: rgba(37,63,75, .2)
+
+            &:first-child
+                margin-top: 0
+
+        &-wrap
+            position: relative
+
+        &-caret
+            position: absolute
+            width: 12px
+            height: 9px
+            top: -20px
+            left: 0
+            background: url(../../public/img/top-caret.png) no-repeat -10px -18px
+
+.hamburger
+    .v-icon
+        color: #fff
+
+.mobile-menu
+    position: fixed
+    top: 60px
+    height: calc(100vh - 60px)
+    right: 0
+    left: 0
+    background: #30505F
+
+    &__wrap
+        padding: 25px
+        color: #fff
+        height: 100%
+        flex-direction: column
+        justify-content: space-between
+        display: flex
+
+.entity-card
+    position: relative
+    display: flex
+    border: 1px solid #cecece !important
+    padding: 13px
+    color: $darkblue !important
+    justify-content: space-between
+    align-items: center
+    @extend %tra
+
+    &:hover
+        @extend %mini-shadow
+        background: rgba($darkblue, .1)
+
+    p
+        margin-bottom: 0
+
+    &__title
+        font-weight: 600
+        line-height: 1.3
+        font-size: 1.125rem
+        @extend %montserrat
+
+    &__desc
+        line-height: 1.3
+        padding-top: 2px
+
+    &__other
+        display: flex
+        flex-direction: column
+        font-weight: 500
+
+    &__admins
+        line-height: 1
+        display: flex
+        width: 180px
+        justify-content: space-between
+
+        img
+            width: 35px
+
+    &__link
+        width: 73px
+        a
+            background: #30505F
+            width: 73px
+            position: absolute
+            border-top-right-radius: 3px
+            border-bottom-right-radius: 3px
+            top: 0
+            right: 0
+            bottom: 0
+            @extend %tra
+            @extend %flexcenter
+
+            &:hover
+                background: #375c6d
+
+            img
+                padding-top: 8px
+    &__wrap
+        width: 70%
+        white-space: nowrap
+        overflow: hidden
+        padding-left: 11px
+
+.page-title, .page-subTitle
+    font-size: 2.25rem
+    font-family: Montserrat, serif
+    font-weight: 600
+
+.page-subTitle
+    font-size: 1.5rem
+
+.lists-wrap
+    color: #F5F5FB
+    padding: 0 30px 20px 30px
+    background: #F5F5FB
+
+.security
+    max-width: 1080px
+    position: relative
+
+.table_header
+        .sort_arrow
+            display: none
+
+        .sort_arrow_spacer
+            display: inline-flex
+            width: 16px
+            height: 10px
+
+.table_header
+    .th_active
+        .sort_arrow
+            display: inline-flex
+
+        .sort_arrow_spacer
+            display: none
+
+.table_header
+    .th_active.desc
+        .sort_arrow
+            -webkit-transform: rotate(-180deg)
+            transform: rotate(-180deg)
+
+.custom-table
+    width: 100%
+    border-collapse: separate
+    border-spacing: 0
+    margin-top: 20px
+
+    th
+        span
+            font-size: 16px
+
+    .v-data-table__expanded__content
+        td
+            padding: 0 !important
+
+        .v-data-table__wrapper
+            td
+                padding: 0 10px !important
+
+            table
+                margin: 20px 72px
+                width: 72%
+                border: thin solid rgba(0,0,0,.12)
+
+    td
+        text-align: center
+        padding: 10px
+
+        &:first-child
+            text-align: left
+
+    thead
+        td
+            border-bottom: 1px solid #30505F
+            font-weight: 500
+
+    tbody
+        .checkboxTable-wrap
+            display: flex
+            justify-content: center
+
+        td
+            background: #F2F2F2
+
+    .v-input--selection-controls__input
+        margin: 0
+
+.th_default
+    background: rgba(#DDE04C, .42) !important
+
+    .grow
+        span
+            font-weight: normal
+            color: #253F4B
+
+.security-form
+    margin-top: 15px
+    max-width: 160px
+
+.tabs-custom
+    border-bottom: 1px solid #C4C4C4
+    padding-bottom: 0
+    font-size: 1.125rem
+
+    a, span
+        color: $tabcolor
+        text-decoration: none
+        padding-bottom: 10px
+        cursor: pointer
+        border-bottom: 2px solid transparent
+
+        &:first-child
+            margin-right: 25px
+
+        &:last-child
+            margin-left: 25px
+
+        &:hover
+            @extend %active-tab
+
+    .tab-active
+        @extend %active-tab
+
+.v-menu__content
+    z-index: 211 !important
+
+.fileinput
+    box-shadow: none !important
+    border: 1px solid black
+
+.v-sheet.v-card
+    border-radius: 0
+
+.martop
+    margin-top: 18px !important
+
+.mainborder
+    border: 1px solid #9DACBF !important
+
+.th_lvl
+    text-align: center
+    justify-content: center
+    align-items: center
+
+.th_lvl_1
+    background: rgba(#47B777, .42)
+
+.th_lvl_2
+    background: rgba(#4795B7, .42)
+
+.th_active
+    .grow
+        span
+            font-weight: bold
+            font-style: italic
+.not_sortable
+    .grow
+        span
+            font-weight: bold
+            font-style: normal
+
+.td_custom
+    background: rgba(238, 239, 176, 0.53)
+
+.grid_table
+    table
+        width: 99% !important
+
+    tr
+        td
+            &:first-child
+                width: 30px !important
+
+    th
+        text-align: left
+        padding: 0 10px
+
+        &:first-child
+            background: rgba(#DCDCDC, .4)
+
+    .layout
+        margin: 0 !important
+
+    .flexflex
+        justify-content: center
+        align-items: center
+        display: flex
+
+    .v-data-table__wrapper
+        margin-top: 40px
+
+    .v-data-table__wrapper>table>tbody>tr>td
+        padding: 0 10px
+
+.formulize-wrapper .formulize-container
+    padding: 13px
+
+.formulize-wrapper .formulize-alert
+    top: -46px
+    right: -2px
+    border-right: 1px solid #d8d8d8
+@import 'media'
