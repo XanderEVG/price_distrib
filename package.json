@@ -3,9 +3,11 @@
         "@symfony/stimulus-bridge": "^2.0.0",
         "@symfony/webpack-encore": "^1.0.0",
         "axios": "^0.21.1",
+        "babel-plugin-transform-regenerator": "^6.26.0",
+        "babel-polyfill": "^6.26.0",
         "core-js": "^3.0.0",
         "regenerator-runtime": "^0.13.2",
-        "sass": "^1.32.6",
+        "sass": "^1.32.7",
         "sass-loader": "^10.0.0",
         "stimulus": "^2.0.0",
         "vue-loader": "^15",
@@ -22,14 +24,11 @@
         "build": "encore production --progress"
     },
     "dependencies": {
-        "v-click-outside": "^3.1.2",
-        "vue": "^2.6.12",
         "@babel/polyfill": "^7.2.5",
         "@fortawesome/fontawesome-svg-core": "^1.2.17",
         "@fortawesome/free-solid-svg-icons": "^5.8.1",
         "@fortawesome/vue-fontawesome": "^0.1.6",
         "axios": "^0.21.1",
-        "babel-polyfill": "^6.26.0",
         "core-js": "^3.0.0",
         "eslint": "^5.15.1",
         "eslint-config-airbnb-base": "^13.1.0",
@@ -42,7 +41,10 @@
         "jqueryui": "^1.11.1",
         "moment": "^2.24.0",
         "node-sass": "^4.*",
+        "qs": "latest",
+        "v-click-outside": "^3.1.2",
         "v-file-upload": "^3.1.7",
+        "vue": "^2.6.12",
         "vue-codemirror": "^4.0.6",
         "vue-context-menu": "^2.0.6",
         "vue-my-photos": "^1.0.4",
@@ -53,7 +55,6 @@
         "vuetify": "^2.4.3",
         "vuex": "^3.1.0",
         "vuex-persistedstate": "^2.5.4",
-        "yarn": "^1.19.1",
-      "qs": "latest"
+        "yarn": "^1.19.1"
     }
 }

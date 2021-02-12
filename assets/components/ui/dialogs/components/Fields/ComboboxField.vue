@@ -10,8 +10,10 @@
     item-value="id"
     solo
     flat
+    return-object
     :rules="getRules(header)"
     :readonly="header.readonly"
+    @change="changed(header.name, editedItem[header.name])"
     dense
     clearable
   ></v-autocomplete>
@@ -19,7 +21,15 @@
 
 <script>
 export default {
-  props: ["header", "editedItem"],
+  props: ["header", "editedItem", "tableName"],
+  methods: {
+    changed(field_name, value) {
+      if(this.tableName === "users" && field_name === "cities") {
+        let idx = value.map(a => a.id);
+        this.$emit('changedCityIdx', idx)
+      }
+    }
+  }
 };
 </script>
 

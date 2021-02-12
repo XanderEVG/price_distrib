@@ -24,6 +24,8 @@
                                 :edited-item="editedItem"
                                 :event-create="eventCreate"
                                 :full-width="fullWidth"
+                                :tableName="tableName"
+                                v-on:changedCityIdx="$emit('changedCityIdx', $event)"
                             ></item-field-form>
                         </v-flex>
                     </v-layout>
@@ -55,14 +57,14 @@
             },
             headers: {
                 type: Array,
-                required: Boolean
+                required: true
             },
             tableName: String,
         },
 
         computed: {
             visibleHeaders() {
-                return this.headers.filter(h => ((h.name !== 'id') && (h.field_type !== 'formula') && !h.not_edit));
+                return this.headers.filter(h => ((h.name !== 'id')));
             },
 
             eventCreate() {

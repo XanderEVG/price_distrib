@@ -38,7 +38,8 @@ class Shop
 
     /**
      * @ManyToOne(targetEntity="City", inversedBy="shops")
-     * @JoinColumn(name="city_id", referencedColumnName="id")
+     * @JoinColumn(name="city_id", referencedColumnName="id",
+     *     onDelete="cascade")
      */
     private ?City $city;
 

@@ -59,7 +59,7 @@ class User implements UserInterface
      /**
      * @ManyToMany(targetEntity="City")
      * @JoinTable(name="users_cities",
-     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")},
      *      inverseJoinColumns={@JoinColumn(name="city_id", referencedColumnName="id")}
      *      )
      */
@@ -69,7 +69,7 @@ class User implements UserInterface
     /**
      * @ManyToMany(targetEntity="Shop")
      * @JoinTable(name="users_shops",
-     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")},
      *      inverseJoinColumns={@JoinColumn(name="shop_id", referencedColumnName="id")}
      *      )
      */
@@ -120,15 +120,20 @@ class User implements UserInterface
         return $this;
     }
 
+    public static function availsbleRoles(): array
+    {
+        return [
+            'ROLE_USER' => 'Пользователь',
+            'ROLE_ADMIN' => 'Администратор',
+        ];
+    }
     /**
      * @see UserInterface
      */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
@@ -190,15 +195,24 @@ class User implements UserInterface
 
     public function addCity(City $city): self
     {
-        if (in_array($city, $this->cities->getValues()) === false) {
+        if ($this->cities != null) {
+            if (in_array($city, $this->cities->getValues()) === false) {
+                $this->cities[] = $city;
+            }
+        } else {
             $this->cities[] = $city;
         }
+
         return $this;
     }
 
     public function setCities(?array $cities): self
     {
-        $this->cities = $cities;
+        if ($cities == null) {
+            $this->cities = new ArrayCollection();
+        } else {
+            $this->cities = $cities;
+        }
 
         return $this;
     }
@@ -211,7 +225,11 @@ class User implements UserInterface
 
     public function addShop(Shop $shop): self
     {
-        if (in_array($shop, $this->shops->getValues()) === false) {
+        if ($this->shops != null) {
+            if (in_array($shop, $this->shops->getValues()) === false) {
+                $this->shops[] = $shop;
+            }
+        } else {
             $this->shops[] = $shop;
         }
         return $this;
@@ -219,7 +237,11 @@ class User implements UserInterface
 
     public function setShops(?array $shops): self
     {
-        $this->shops = $shops;
+        if ($shops == null) {
+            $this->shops = new ArrayCollection();
+        } else {
+            $this->shops = $shops;
+        }
 
         return $this;
     }

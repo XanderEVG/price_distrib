@@ -144,4 +144,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             }
         }
     }
+
+    /**
+     * Удаление пользователей по их ИД.
+     *
+     * @param array $ids ИД пользователей.
+     *
+     * @return void
+     */
+    public function deleteById(array $ids): void
+    {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->delete(User::class, 'u')
+            ->where($queryBuilder->expr()->in('u.id', ':ids'))
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->execute();
+    }
 }

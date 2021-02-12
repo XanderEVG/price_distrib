@@ -25,7 +25,8 @@
                         table-name="users"
                         @closeDialogSave="showDialogSave = false"
                         @confirmDialogSave="confirmDialogSave"
-                        @showMessage="showNotification({text: $event.text, type: $event.type });"
+                        @showMessage="showNotification({text: $event.text, type: $event.type })"
+                        v-on:changedCityIdx="changedCityIdx($event)"
                 ></grid-item-save-dialog>
 
                 <grid-ext
@@ -34,7 +35,7 @@
                         :items="items"
                         :total="total"
                         :loading="loading"
-                        @getDataFromApi="getUsers"
+                        @getDataFromApi="getItems"
                         @deleteItem="deleteItem"
                         @createItem="createItem"
                         @editItem="editItem"
@@ -179,7 +180,6 @@
                     hide_in_menu_columns: true,
                 },
             ]
-            console.log(this.headers);
         },
 
         methods: {
@@ -190,7 +190,6 @@
                         limit: null,
                     })
                         .then(response => {
-                            console.log(response.data.cities);
                             resolve(response.data.cities);
                         }).catch(error => {
                         reject(error);
@@ -220,9 +219,21 @@
                 })
             },
 
+            changedCityIdx(event) {
+                let that = this;
+                this.headers.forEach(function (value, i) {
+                    if (value.name === 'shops') {
+                        that.headers[i].items = that.shops.filter(h => ((event.includes(h.city.id))));
+                    }
+                });
+
+                if (this.editedItem.shops !== null) {
+                    this.editedItem.shops = this.editedItem.shops.filter(h => ((event.includes(h.city.id))));
+                }
+            },
 
             // Запрашиваем список пользователей согласно пагинации
-            getUsers(data) {
+            getItems(data) {
                 this.loading = true;
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
@@ -258,14 +269,12 @@
 
             // Создание новой записи
             createItem() {
-                console.log('createItem');
                 this.editedItem = Object.assign({}, this.defaultItem);
                 this.showDialogSave = true;
             },
 
             // Редактирование существующей записи
             editItem(data) {
-                console.log('editItem', data);
                 this.editedIndex = data.editedIndex;
                 this.editedItem = data.editedItem;
                 this.showDialogSave = true;
@@ -273,7 +282,6 @@
 
             // Удаление записи
             deleteItem(selected) {
-                console.log('deleteItem', selected);
                 this.selected = selected;
                 this.showDialogDelete = true;
             },
@@ -285,11 +293,11 @@
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
                 };
-                axios.post('/api/users/delete', {
-                    user_id: this.selected
+                axios.delete('/api/users/delete', {
+                    data: this.selected
                 }).then(response => {
-                    if (response.data.rez) {
-                        for(let i=0;i<this.selected.length;i++) {
+                    if (response.data.success) {
+                        for(let i=0; i < this.selected.length; i++) {
                             const index = this.items.map(function(e) { return e.id; }).indexOf(this.selected[i]);
                             if(index >= 0 ) {
                                 this.items.splice(index, 1);
@@ -318,12 +326,16 @@
                     axios.defaults.headers.common = {
                         'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
                     };
-                    axios.post('/api/users/save', qs.stringify({
-                        reestr_id: this.reestrId,
-                        data: JSON.stringify(data)
-                    })).then(response => {
-                        if (response.data.rez) {
-                            resolve(response.data.user_id)
+
+                    // Удаляет поля = null
+                    function filterNonNull(obj) {
+                        return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v));
+                    }
+                    axios.post('/api/users/save', qs.stringify(
+                        filterNonNull(data)
+                    )).then(response => {
+                        if (response.data.success) {
+                            resolve(response.data.user.id)
                         } else {
                             this.showNotification({
                                 text: (response.data.msg !== '') ? response.data.msg : 'Неизвестная ошибка',

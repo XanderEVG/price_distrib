@@ -37,6 +37,7 @@
                                 flat
                                 class="shop-card"
                                 :data-id="shop.id"
+                                :data-name="shop.name"
                                 v-on:click="select_shop"
                         >
                             <v-card-title>{{shop.name}}</v-card-title>
@@ -69,7 +70,9 @@
         methods: {
             select_shop(e) {
                 let shop_id = e.target.closest(".shop-card").dataset.id;
-                this.$store.commit('setShopId', shop_id);
+                let shop_name = e.target.closest(".shop-card").dataset.name;
+                this.$store.commit('setCurrentShopId', shop_id);
+                this.$store.commit('setCurrentShopName', shop_name);
                 this.$router.push('/statistic');
             },
         },
@@ -93,7 +96,7 @@
             },
         },
         created() {
-            this.current_city_id = this.$store.getters.getCityId;
+            this.current_city_id = this.$store.getters.getCurrentCityId;
             const available_shops = this.$store.getters.availableShops(this.current_city_id);
             if (available_shops.length === 1) {
                 let shop_id = available_shops[0].id;

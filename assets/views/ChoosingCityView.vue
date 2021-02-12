@@ -34,6 +34,7 @@
                                 flat
                                 class="city-card"
                                 :data-id="city.id"
+                                :data-name="city.name"
                                 v-on:click="select_city"
                         >
                             <v-card-title>{{city.name}}</v-card-title>
@@ -65,7 +66,9 @@
         methods: {
             select_city(e) {
                 let city_id = e.target.closest(".city-card").dataset.id;
-                this.$store.commit('setCityId', city_id);
+                let city_name = e.target.closest(".city-card").dataset.name;
+                this.$store.commit('setCurrentCityId', city_id);
+                this.$store.commit('setCurrentCityName', city_name);
                 this.$router.push('/select_shop');
             },
         },

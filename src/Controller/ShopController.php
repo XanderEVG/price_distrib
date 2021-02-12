@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Common\Controller\DefaultController;
 use App\Repository\ShopRepository;
+use App\Services\QuotesWiper;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -63,8 +64,9 @@ class ShopController extends DefaultController
         $sort = $request->get('sort') ?? array();
         $limit = $request->get('limit');
         $start = intval($request->get('start'));
+        $city_id = QuotesWiper::slashInteger($request->get('city_id'));
 
-        $shops = $this->shopRepository->get($filters, $sort, $limit, $start);
+        $shops = $this->shopRepository->get($filters, $sort, $limit, $start, $city_id);
         $total = $this->shopRepository->getTotal($filters);
         $responseData = [];
         foreach ($shops as $shop) {

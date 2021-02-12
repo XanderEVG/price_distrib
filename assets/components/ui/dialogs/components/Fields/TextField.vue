@@ -6,7 +6,6 @@
         flat
         class="text-input"
         :rules="getRules(header)"
-        @focus="(header.field_mask) ? checkMask($event, header.field_mask) : null"
         :readonly="header.readonly"
     ></v-text-field>
 
@@ -15,13 +14,15 @@
         v-model="editedItem[header.name]"
         :rules="getRules(header)"
         type="text"
-        readonly
+        solo
+        flat
+        class="text-input"
     >
         <template v-slot:append>
             <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                     <v-btn icon v-on="on">
-                        <v-icon color="teal lighten-1" @click="generateLogin('fio', editedItem.first_name)">perm_data_setting</v-icon>
+                        <v-icon color="teal lighten-1" @click="generateLogin('fio', editedItem.fio)">perm_data_setting</v-icon>
                     </v-btn>
                 </template>
                 <span>Генерировать по ФИО</span>
@@ -57,7 +58,6 @@
 </template>
 
 <script>
-    import Inputmask from "inputmask";
 
     export default {
         props: ['header', 'editedItem', 'eventCreate'],
@@ -69,17 +69,6 @@
         },
 
         methods: {
-            // Установка маски, если необходимо
-            checkMask(event, mask) {
-                if(!mask) {
-                    return;
-                }
-
-                let selector = event.target;
-                let im = new Inputmask(mask);
-                im.mask(selector);
-            },
-
             // Генерация логина по ФИО или почте
             generateLogin(of_field, value) {
                 // Если значение не задано
@@ -135,10 +124,10 @@
                         fio = value.split(' '),
                         login = fio[0] + (fio[1] ? fio[1].charAt(0) : '') + (fio[2] ? fio[2].charAt(0) : '');
                     login = str_replace(rus, lat, login);
-                    this.editedItem.login = login
+                    this.editedItem.username = login
                     // Генерация по Логину
                 } else {
-                    this.editedItem.login = value.substr(0,value.indexOf('@')) || value;
+                    this.editedItem.username = value.substr(0,value.indexOf('@')) || value;
                 }
             },
 

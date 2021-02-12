@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Shop;
 use App\Services\QuotesWiper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
@@ -25,11 +26,17 @@ class ShopRepository extends ServiceEntityRepository
         parent::__construct($registry, Shop::class);
     }
 
-    public function get(?array $filters, ?array $sort, ?int $limit = null, ?int $start = 0)
+    public function get(?array $filters, ?array $sort, ?int $limit = null, ?int $start = 0, ?int $city_id = null)
     {
         $get_query = $this->createQueryBuilder($this->alias);
         $this->filter($get_query, $filters);
+        if($city_id) {
+            $get_query->andWhere($this->alias.".city_id = :city_id");
+            $get_query->setParameter("city_id", $city_id,ParameterType::INTEGER);
+        }
+
         $this->sort($get_query, $sort);
+
 
         $get_query->setMaxResults($limit);
         $get_query->setFirstResult($start);

@@ -86,4 +86,22 @@ class CityRepository extends ServiceEntityRepository
             }
         }
     }
+
+    /**
+     * Удаление по  ИД.
+     *
+     * @param array $ids ИД.
+     *
+     * @return void
+     */
+    public function deleteById(array $ids): void
+    {
+        $queryBuilder = $this->createQueryBuilder('city');
+        $queryBuilder
+            ->delete(City::class, 'c')
+            ->where($queryBuilder->expr()->in('c.id', ':ids'))
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->execute();
+    }
 }

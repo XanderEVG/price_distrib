@@ -57,6 +57,8 @@
                         v-else-if="header.field_type === 'combobox'"
                         :header="header"
                         :edited-item="editedItem"
+                        :tableName="tableName"
+                        v-on:changedCityIdx="$emit('changedCityIdx', $event)"
                 ></combobox-field>
             </v-col>
         </v-row>
@@ -78,7 +80,7 @@
             TextField, IntegerField, BooleanField, ComboboxField, FileField, TextareaField, DateField, GridField
         },
 
-        props: ['header', 'editedItem', 'eventCreate', 'fullWidth'],
+        props: ['header', 'editedItem', 'eventCreate', 'fullWidth', 'tableName'],
 
     };
 </script>
