@@ -233,7 +233,8 @@
             },
 
             // Запрашиваем список пользователей согласно пагинации
-            getItems(data) {
+            getItems1932
+                (data) {
                 this.loading = true;
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')

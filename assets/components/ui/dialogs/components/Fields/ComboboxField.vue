@@ -24,7 +24,7 @@ export default {
   props: ["header", "editedItem", "tableName"],
   methods: {
     changed(field_name, value) {
-      if(this.tableName === "users" && field_name === "cities") {
+      if (this.tableName === "users" && field_name === "cities") {
         let idx = value.map(a => a.id);
         this.$emit('changedCityIdx', idx)
       }

@@ -67,12 +67,7 @@
                 editedIndex: -1,
                 defaultItem: {
                     id: 0,
-                    username: null,
-                    email: null,
-                    fio: null,
-                    roles: null,
-                    cities: null,
-                    shops: null,
+                    name: null
                 },
                 editedItem: {},
             }

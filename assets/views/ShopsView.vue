@@ -22,11 +22,10 @@
                         :eventCreate="eventCreate"
                         :headers="headers"
                         :editedItem="editedItem"
-                        table-name="users"
+                        table-name="shops"
                         @closeDialogSave="showDialogSave = false"
                         @confirmDialogSave="confirmDialogSave"
                         @showMessage="showNotification({text: $event.text, type: $event.type })"
-                        v-on:changedCityIdx="changedCityIdx($event)"
                 ></grid-item-save-dialog>
 
                 <grid-ext
@@ -69,12 +68,8 @@
                 editedIndex: -1,
                 defaultItem: {
                     id: 0,
-                    username: null,
-                    email: null,
-                    fio: null,
-                    roles: null,
-                    cities: null,
-                    shops: null,
+                    name: null,
+                    city: null
                 },
                 editedItem: {},
             }
@@ -97,11 +92,12 @@
             },
         },
 
-        mounted() {
+        async mounted() {
             this.current_city_id = this.$store.getters.getCurrentCityId;
             axios.defaults.headers.common = {
                 'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
             };
+            await this.getCities().then(response => this.cities = response);
             this.headers = [
                 {
                     ru_name: 'ИД',
@@ -118,6 +114,17 @@
                     field_type: 'text',
                     field_required: true,
                     show_in_grid: true,
+                },
+                {
+                  ru_name: 'Город',
+                  name: 'city',
+                  field_type: 'combobox',
+                  multiple: false,
+                  field_required: true,
+                  items: this.cities,
+                  show_in_grid: true,
+                  hide_in_menu_columns: true,
+                  sortable: true,
                 }
             ]
         },
@@ -234,6 +241,7 @@
 
             // Запрос на сохранение создаваемой/редактируемой записи
             saveFromApi(data) {
+                console.log(data);
                 return new Promise((resolve, reject) => {
                     axios.defaults.headers.common = {
                         'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
