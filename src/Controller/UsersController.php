@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -88,6 +89,7 @@ class UsersController extends DefaultController
      * @Route("/api/users/get_list", name="users_get_list")
      * @param Request $request
      * @return JsonResponse
+     * @throws ExceptionInterface
      */
     public function list(Request $request): JsonResponse
     {
@@ -95,6 +97,10 @@ class UsersController extends DefaultController
         $sort = $request->get('sort') ?? array();
         $limit = $request->get('limit');
         $start = intval($request->get('start'));
+
+        if ($sort) {
+            $sort = json_decode($sort, true);
+        }
 
         $users = $this->userRepository->get($filters, $sort, $limit, $start);
         $total = $this->userRepository->getTotal($filters);
@@ -135,9 +141,9 @@ class UsersController extends DefaultController
      * @Route("/api/users/save", name="create_or_edit_users", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
-     * @throws \Exception
+     * @throws ExceptionInterface
      */
-    public function edit(Request $request)
+    public function edit(Request $request): JsonResponse
     {
         $id = filter_var($request->get('id'), FILTER_SANITIZE_NUMBER_INT);
         $username = filter_var($request->get('username'), FILTER_SANITIZE_STRING);
@@ -279,7 +285,7 @@ class UsersController extends DefaultController
      * @param Request $request
      * @return JsonResponse
      */
-    public function delete(Request $request)
+    public function delete(Request $request): JsonResponse
     {
         $ids_json = $request->getContent();
         if ($ids_json) {

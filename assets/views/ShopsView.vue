@@ -114,6 +114,15 @@
                     field_type: 'text',
                     field_required: true,
                     show_in_grid: true,
+                    sortable: true,
+                },
+                {
+                    ru_name: 'Адрес',
+                    name: 'address',
+                    field_type: 'text',
+                    field_required: false,
+                    show_in_grid: true,
+                    sortable: true,
                 },
                 {
                   ru_name: 'Город',
@@ -150,7 +159,7 @@
             },
 
 
-            // Запрашиваем список пользователей согласно пагинации
+            // Запрашиваем список строк согласно пагинации
             getItems(data) {
                 this.loading = true;
                 axios.defaults.headers.common = {
@@ -162,7 +171,6 @@
                         limit: data.limit,
                         filters: data.filters,
                         sort: data.sort,
-                        sort_dir: data.sort_dir,
                     }}).then(response => {
                     this.loading = false;
 
@@ -241,15 +249,13 @@
 
             // Запрос на сохранение создаваемой/редактируемой записи
             saveFromApi(data) {
-                console.log(data);
                 return new Promise((resolve, reject) => {
                     axios.defaults.headers.common = {
                         'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
                     };
 
-                    // Удаляет поля = null
                     function filterNonNull(obj) {
-                        return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v));
+                      return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v));
                     }
                     axios.post('/api/shop/save', qs.stringify(
                         filterNonNull(data)

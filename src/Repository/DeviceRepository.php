@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entity\Device;
 use App\Entity\Shop;
-use App\Services\QuotesWiper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\NonUniqueResultException;
@@ -12,27 +12,27 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Shop|null find($id, $lockMode = null, $lockVersion = null)
- * @method Shop|null findOneBy(array $criteria, array $orderBy = null)
- * @method Shop[]    findAll()
- * @method Shop[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Device|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Device|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Device[]    findAll()
+ * @method Device[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ShopRepository extends ServiceEntityRepository
+class DeviceRepository extends ServiceEntityRepository
 {
-    private string $alias = 's';
+    private string $alias = 'd';
 
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Shop::class);
+        parent::__construct($registry, Device::class);
     }
 
-    public function get(?array $filters, ?array $sort, ?int $limit = null, ?int $start = 0, ?int $city_id = null)
+    public function get(?array $filters, ?array $sort, ?int $limit = null, ?int $start = 0, ?int $shop_id = null)
     {
         $get_query = $this->createQueryBuilder($this->alias);
         $this->filter($get_query, $filters);
-        if ($city_id) {
-            $get_query->andWhere($this->alias.".city_id = :city_id");
-            $get_query->setParameter("city_id", $city_id,ParameterType::INTEGER);
+        if ($shop_id) {
+            $get_query->andWhere($this->alias.".shop_id = :shop_id");
+            $get_query->setParameter("shop_id", $shop_id,ParameterType::INTEGER);
         }
 
         $this->sort($get_query, $sort);
@@ -69,21 +69,16 @@ class ShopRepository extends ServiceEntityRepository
                     $query->setParameter("id", $value);
                     break;
 
-                case 'name':
+                case 'mac':
                     $value = mb_strtolower($value);
-                    $query->andWhere("lower($alias.name) LIKE :name");
-                    $query->setParameter("name", "%$value%");
+                    $query->andWhere("lower($alias.mac) LIKE :mac");
+                    $query->setParameter("mac", "%$value%");
                     break;
 
-                case 'address':
-                    $query->addOrderBy("lower($alias.address) LIKE :address");
-                    $query->setParameter("address", "%$value%");
-                    break;
-
-                case 'city':
+                case 'shop':
                     $value = mb_strtolower($value);
-                    $query->andWhere("$alias.city_id in :city_idx");
-                    $query->setParameter("city_idx", "$value");
+                    $query->andWhere("$alias.shop_id in :shop_idx");
+                    $query->setParameter("shop_idx", "$value");
                     break;
             }
         }
@@ -98,16 +93,12 @@ class ShopRepository extends ServiceEntityRepository
                     $query->addOrderBy("$alias.id", $dir);
                     break;
 
-                case 'name':
-                    $query->addOrderBy("$alias.name", $dir);
+                case 'mac':
+                    $query->addOrderBy("$alias.mac", $dir);
                     break;
 
-                case 'address':
-                    $query->addOrderBy("$alias.address", $dir);
-                    break;
-
-                case 'city':
-                    $query->addOrderBy("$alias.city_id", $dir);
+                case 'shop':
+                    $query->addOrderBy("$alias.shop_id", $dir);
                     break;
             }
         }
@@ -122,10 +113,10 @@ class ShopRepository extends ServiceEntityRepository
      */
     public function deleteById(array $ids): void
     {
-        $queryBuilder = $this->createQueryBuilder('shop');
+        $queryBuilder = $this->createQueryBuilder('device');
         $queryBuilder
-            ->delete(Shop::class, 's')
-            ->where($queryBuilder->expr()->in('s.id', ':ids'))
+            ->delete(Shop::class, 'd')
+            ->where($queryBuilder->expr()->in('d.id', ':ids'))
             ->setParameter('ids', $ids)
             ->getQuery()
             ->execute();

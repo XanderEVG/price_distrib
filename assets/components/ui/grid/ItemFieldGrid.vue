@@ -5,6 +5,10 @@
         <span v-else-if="table_name === 'users' && header.name  === 'cities'" v-html="getUserCities(item[header.name])"></span>
         <span v-else-if="table_name === 'users' && header.name  === 'shops'" v-html="getUserShops(item[header.name])"></span>
 
+        <!-- shops -->
+        <span v-else-if="table_name === 'shops' && header.name  === 'city'" v-html="getShopCity(item[header.name])"></span>
+
+
 
 
 
@@ -42,7 +46,7 @@
                     });
                 }
 
-                return rez.join('<br>\n')
+                return rez.join('<br>\n');
             },
 
             // Вывод массива городов в грид
@@ -53,9 +57,8 @@
                         rez.push(element['name']);
                     });
                 }
-                return rez.join('<br>\n')
+                return rez.join('<br>\n');
             },
-
             // Вывод массива городов в грид
             getUserShops(values) {
                 let rez = [];
@@ -64,9 +67,12 @@
                         rez.push(element['name'] + " (" + element['city'].name + ")");
                     });
                 }
-                return rez.join('<br>\n')
+                return rez.join('<br>\n');
             },
-
+            // Вывод массива городов в грид
+            getShopCity(values) {
+                return values['name'];
+            },
             //Форматирование даты
             getDateWithFormat(date_string) {
                 if (date_string) {

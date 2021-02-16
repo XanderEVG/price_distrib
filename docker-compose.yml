@@ -8,5 +8,6 @@ services:
     environment:
       POSTGRES_USER: postgre
       POSTGRES_PASSWORD: "qweqwe"
+      POSTGRES_DB: "pricer"
     volumes:
       - /home/xander/docker_data/price_distrib:/var/lib/postgresql/data

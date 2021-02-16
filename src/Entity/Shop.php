@@ -43,8 +43,14 @@ class Shop
      */
     private ?City $city;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Device::class, mappedBy="shop")
+     */
+    private $devices;
+
     public function __construct() {
         $this->city = null;
+        $this->devices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -96,6 +102,36 @@ class Shop
     public function setAddress(?string $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Device[]
+     */
+    public function getDevices(): Collection
+    {
+        return $this->devices;
+    }
+
+    public function addDevice(Device $device): self
+    {
+        if (!$this->devices->contains($device)) {
+            $this->devices[] = $device;
+            $device->setShop($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDevice(Device $device): self
+    {
+        if ($this->devices->removeElement($device)) {
+            // set the owning side to null (unless already changed)
+            if ($device->getShop() === $this) {
+                $device->setShop(null);
+            }
+        }
 
         return $this;
     }

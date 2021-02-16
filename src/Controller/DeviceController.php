@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Common\Controller\DefaultController;
-use App\Entity\City;
+use App\Entity\Shop;
 use App\Repository\CityRepository;
+use App\Repository\ShopRepository;
+use App\Services\QuotesWiper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,15 +14,16 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
-class CityController extends DefaultController
+class DeviceController extends DefaultController
 {
+
     /**
-     * @var CityRepository
+     * @var ShopRepository
      */
-    private CityRepository $cityRepository;
+    private ShopRepository $shopRepository;
 
     /**
      * @var ValidatorInterface
@@ -41,23 +44,23 @@ class CityController extends DefaultController
      * VacationsController constructor.
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
-     * @param CityRepository $cityRepository
+     * @param ShopRepository $shopRepository
      * @param Security $security
      */
     public function __construct(
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        CityRepository $cityRepository,
+        ShopRepository $shopRepository,
         Security $security
     ) {
         $this->serializer = $serializer;
         $this->validator = $validator;
-        $this->cityRepository = $cityRepository;
+        $this->shopRepository = $shopRepository;
         $this->security = $security;
     }
 
     /**
-     * @Route("/api/city/get_list", name="city_get_list")
+     * @Route("/api/device/get_list", name="device_get_list")
      * @param Request $request
      * @return JsonResponse
      * @throws ExceptionInterface
@@ -68,50 +71,58 @@ class CityController extends DefaultController
         $sort = $request->get('sort') ?? array();
         $limit = $request->get('limit');
         $start = intval($request->get('start'));
+        $shop_id = QuotesWiper::slashInteger($request->get('shop_id'));
 
         if ($sort) {
             $sort = json_decode($sort, true);
         }
 
-
-        $cities = $this->cityRepository->get($filters, $sort, $limit, $start);
-        $total = $this->cityRepository->getTotal($filters);
+        $shops = $this->shopRepository->get($filters, $sort, $limit, $start, $shop_id);
+        $total = $this->shopRepository->getTotal($filters);
         $responseData = [];
-        foreach ($cities as $city) {
+        foreach ($shops as $shop) {
             $responseData[] = $this->serializer->normalize(
-                $city,
+                $shop,
                 false,
                 [
                     'attributes' => [
                         'id',
-                        'name'
+                        'name',
+                        'address',
+                        'city' => ['id', 'name']
                     ]
                 ]
             );
         }
-        return $this->json(array('success' => true, 'cities' => $responseData, 'total' => $total));
+        return $this->json(array('success' => true, 'shops' => $responseData, 'total' => $total));
     }
 
     /**
-     * @Route("/api/city/save", name="create_or_edit_city", methods={"POST"})
+     * @Route("/api/device/save", name="create_or_edit_device", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      * @throws ExceptionInterface
      */
     public function edit(Request $request): JsonResponse
     {
-        $id = filter_var($request->get('id'), FILTER_SANITIZE_NUMBER_INT);
+        $id = intval($request->get('id'));
         $name = filter_var($request->get('name'), FILTER_SANITIZE_STRING);
-
+        $address = filter_var($request->get('address'), FILTER_SANITIZE_STRING);
+        $city = filter_var_array($request->get('city') ?? array(), FILTER_SANITIZE_STRING);
 
         $constraints_array = [
             'name' => [
                 new Assert\NotBlank(),
                 new Assert\Length(['max' => 255])
             ],
+            'city' => [
+                new Assert\NotBlank(),
+                new Assert\Count(['min' => 1])
+            ],
         ];
         $validation_fields = [
-            'name' => $name
+            'name' => $name,
+            'city' => $city,
         ];
         $constraints = new Assert\Collection($constraints_array);
         $violations = $this->validator->validate($validation_fields, $constraints);
@@ -122,38 +133,46 @@ class CityController extends DefaultController
 
         $entityManager = $this->getDoctrine()->getManager();
         if ($id > 0) {
-            $city = $this->cityRepository->find($id);
-            if (!$city) {
+            $shop = $this->shopRepository->find($id);
+            if (!$shop) {
                 return $this->json(array(
                     'success' => false,
                     'msg' => "Не удалось обновить. Объект не существует."
                 ));
             }
         } else {
-            $city = new City();
+            $shop = new Shop();
         }
 
-        $city->setName($name);
+        $shop->setName($name);
+        $shop->setAddress($address);
+        $city_object = $this->cityRepository->find($city['id']);
+        if ($city_object) {
+            $shop->setCity($city_object);
+        }
+
         try {
-            $entityManager->persist($city);
+            $entityManager->persist($shop);
             $entityManager->flush();
         } catch (UniqueConstraintViolationException $e) {
             return $this->json(array(
                 'success' => false,
-                'msg' => "Невозможно создать город, такое наименование уже занято"
+                'msg' => "Невозможно создать магазин, такое наименование уже занято"
             ));
 
         }
 
         $responseData = [
             'success' => true,
-            'city' => $this->serializer->normalize(
-                $city,
+            'shop' => $this->serializer->normalize(
+                $shop,
                 false,
                 [
                     'attributes' => [
                         'id',
                         'name',
+                        'address',
+                        'city' => ['id', 'name'],
                     ]
                 ]
             )
@@ -162,7 +181,7 @@ class CityController extends DefaultController
     }
 
     /**
-     * @Route("/api/city/delete", name="delete_city", methods={"DELETE"})
+     * @Route("/api/device/delete", name="delete_device", methods={"DELETE"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -189,7 +208,7 @@ class CityController extends DefaultController
             );
         }
 
-        $this->cityRepository->deleteById($ids);
+        $this->shopRepository->deleteById($ids);
         return $this->json(array('success' => true));
 
     }

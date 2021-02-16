@@ -45,7 +45,7 @@
                             v-for="header in visibleHeaders"
                             :class="[
                                'text-start',
-                                header.sortable === false ? 'not_sortable' : 'sortable',
+                                header.sortable === true ? 'sortable' : 'not_sortable',
                                pagination.descending ? 'desc' : 'asc',
                                {th_active: header.name === pagination.sortBy || filtersEnabled.includes(header.name)},
                             ]"
@@ -124,6 +124,7 @@
 <script>
     import RefreshBtn from "./grid_toolbar/RefreshBtn.vue";
     import ItemFieldGrid from "./ItemFieldGrid.vue";
+    import _ from 'lodash';
 
     export default {
         components: {
@@ -152,7 +153,6 @@
                     sortBy: "id",
                     descending: false,
                     page: 1,
-                    rowsPerPage: 10,
                 },
                 filters: {},
                 indeterminate: false,
@@ -160,7 +160,9 @@
                 filtersEnabled: [],
             };
         },
-
+        created: function () {
+          this.getDataFromApiDebounced = _.debounce(this.getDataFromApi, 50)
+        },
         computed: {
             // Видимые колонки
             visibleHeaders() {
@@ -176,7 +178,7 @@
             // Событие изменения пагинации
             pagination: {
                 handler() {
-                    this.getDataFromApi();
+                    this.getDataFromApiDebounced();
                 },
                 deep: true,
             },
@@ -192,18 +194,16 @@
         methods: {
             // Запрашиваем список записей согласно пагинации
             getDataFromApi() {
-                const {sortBy, descending, page, itemsPerPage} = this.pagination;
+              const {sortBy, descending, page, itemsPerPage} = this.pagination;
 
-                let start = (page - 1) * itemsPerPage,
-                    limit = itemsPerPage;
-
-                this.$emit("getDataFromApi", {
-                    start,
-                    limit,
-                    sort: null,
-                    sort_dir: null,
-                    filters: null
-                });
+              let start = (page - 1) * itemsPerPage,
+                  limit = itemsPerPage;
+              this.$emit("getDataFromApi", {
+                start,
+                limit,
+                sort: {[sortBy]: descending ? 'desc' : 'asc'},
+                filters: null
+              });
             },
 
             // Удаление записи
@@ -250,15 +250,16 @@
 
             // Сортировка. Если явно не указан параметр sort, то делается toggle в случае повторной сортировки
             changeSort(column, sortable, sort) {
-                if (sortable === false) {
+                if (sortable !== true) {
                     return;
                 }
+
                 if (this.pagination.sortBy === column) {
                     this.pagination.descending =
                         sort !== undefined ? sort : !this.pagination.descending;
                 } else {
                     this.pagination.sortBy = column;
-                    this.pagination.descending = sort !== undefined ? sort : false;
+                    this.pagination.descending = false;
                 }
             },
 

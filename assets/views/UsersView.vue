@@ -123,6 +123,7 @@
                     login: true,
                     field_required: true,
                     show_in_grid: true,
+                    sortable: true,
                 },
                 {
                     ru_name: 'ФИО',
@@ -130,6 +131,7 @@
                     field_type: 'text',
                     field_required: true,
                     show_in_grid: true,
+                    sortable: true,
                 },
                 {
                     ru_name: 'E-mail',
@@ -138,6 +140,7 @@
                     field_required: true,
                     show_in_grid: true,
                     email: true,
+                    sortable: true,
                 },
                 {
                     ru_name: 'Роли',
@@ -233,8 +236,7 @@
             },
 
             // Запрашиваем список пользователей согласно пагинации
-            getItems1932
-                (data) {
+            getItems(data) {
                 this.loading = true;
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')

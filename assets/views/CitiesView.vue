@@ -110,6 +110,7 @@
                     field_type: 'text',
                     field_required: true,
                     show_in_grid: true,
+                    sortable: true,
                 }
             ]
         },
