@@ -75,13 +75,13 @@
     import DateField from './Fields/DateField.vue';
     import GridField from './Fields/GridField.vue';
 
+
     export default {
         components: {
             TextField, IntegerField, BooleanField, ComboboxField, FileField, TextareaField, DateField, GridField
         },
 
         props: ['header', 'editedItem', 'eventCreate', 'fullWidth', 'tableName'],
-
     };
 </script>
 

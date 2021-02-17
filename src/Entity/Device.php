@@ -23,9 +23,20 @@ class Device
     private $shop;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $shop_id;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $mac;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="devices")
+     */
+    private $product;
+
 
     public function getId(): ?int
     {
@@ -55,4 +66,17 @@ class Device
 
         return $this;
     }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
 }

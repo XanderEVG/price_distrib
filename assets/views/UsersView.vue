@@ -23,7 +23,7 @@
                         :headers="headers"
                         :editedItem="editedItem"
                         table-name="users"
-                        @closeDialogSave="showDialogSave = false"
+                        @closeDialogSave="closeDialogSave"
                         @confirmDialogSave="confirmDialogSave"
                         @showMessage="showNotification({text: $event.text, type: $event.type })"
                         v-on:changedCityIdx="changedCityIdx($event)"
@@ -280,6 +280,17 @@
             editItem(data) {
                 this.editedIndex = data.editedIndex;
                 this.editedItem = data.editedItem;
+
+                // скрываем лишние магазины(зависимость от выбранных городов)
+                let idx = this.editedItem.cities.map(c => c.id);
+                if (idx.length >0) {
+                    let that = this;
+                    this.headers.forEach(function (value, i) {
+                        if (value.name === 'shops') {
+                            that.headers[i].items = that.shops.filter(h => (idx.includes(h.city.id)));
+                        }
+                    });
+                }
                 this.showDialogSave = true;
             },
 
@@ -287,6 +298,16 @@
             deleteItem(selected) {
                 this.selected = selected;
                 this.showDialogDelete = true;
+            },
+
+            closeDialogSave() {
+                this.showDialogSave = false;
+                let that = this;
+                this.headers.forEach(function (value, i) {
+                    if (value.name === 'shops') {
+                        that.headers[i].items = that.shops;
+                    }
+                });
             },
 
             // Подтверждение удаления записи

@@ -200,7 +200,7 @@
                         text: error,
                         type: 'error'
                     });
-                    console.log("delete users error:", error);
+                    console.log("delete city error:", error);
                 });
             },
 
@@ -232,7 +232,7 @@
                             text: error,
                             type: 'error'
                         });
-                        console.log("save users error:", error);
+                        console.log("save city error:", error);
                     });
                 })
             },

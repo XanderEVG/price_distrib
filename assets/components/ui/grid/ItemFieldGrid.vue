@@ -2,11 +2,19 @@
     <!-- Уникальные поля -->
         <!-- users -->
         <span v-if="table_name === 'users' && header.name  === 'roles'" v-html="getRoles(item[header.name], header.name)"></span>
-        <span v-else-if="table_name === 'users' && header.name  === 'cities'" v-html="getUserCities(item[header.name])"></span>
-        <span v-else-if="table_name === 'users' && header.name  === 'shops'" v-html="getUserShops(item[header.name])"></span>
+        <span v-else-if="table_name === 'users' && header.name  === 'cities'" v-html="getCities(item[header.name])"></span>
+        <span v-else-if="table_name === 'users' && header.name  === 'shops'" v-html="getShops(item[header.name])"></span>
 
         <!-- shops -->
-        <span v-else-if="table_name === 'shops' && header.name  === 'city'" v-html="getShopCity(item[header.name])"></span>
+        <span v-else-if="table_name === 'shops' && header.name  === 'city'" v-html="getOneCity(item[header.name])"></span>
+
+        <!-- devices -->
+        <span v-else-if="table_name === 'devices' && header.name  === 'shop'" v-html="getOneShop(item[header.name])"></span>
+
+        <!-- devices -->
+        <span v-else-if="table_name === 'products' && header.name  === 'city'" v-html="getOneCity(item[header.name])"></span>
+        <span v-else-if="table_name === 'products' && header.name  === 'shop'" v-html="getOneShop(item[header.name])"></span>
+        <span v-else-if="table_name === 'products' && header.name  === 'devices'" v-html="getDevices(item[header.name])"></span>
 
 
 
@@ -32,6 +40,7 @@
     import axios from 'axios';
     import moment from 'moment';
 
+
     export default {
         props: ['table_name', 'header', 'item'],
 
@@ -49,8 +58,8 @@
                 return rez.join('<br>\n');
             },
 
-            // Вывод массива городов в грид
-            getUserCities(values) {
+            // Вывод массива городов в грид, с джойном через <br>
+            getCities(values) {
                 let rez = [];
                 if (values) {
                     values.forEach((element) => {
@@ -59,8 +68,9 @@
                 }
                 return rez.join('<br>\n');
             },
-            // Вывод массива городов в грид
-            getUserShops(values) {
+
+            // Вывод массива городов в грид, с джойном через <br>
+            getShops(values) {
                 let rez = [];
                 if (values) {
                     values.forEach((element) => {
@@ -69,10 +79,36 @@
                 }
                 return rez.join('<br>\n');
             },
-            // Вывод массива городов в грид
-            getShopCity(values) {
+
+            // Вывод города в грид
+            getOneCity(values) {
+              if (values) {
                 return values['name'];
+              } else {
+                return null;
+              }
             },
+
+            // Вывод магазина в грид
+            getOneShop(values) {
+                if (values) {
+                  return values['name'];
+                } else {
+                  return null;
+                }
+            },
+
+            // Вывод устройств в грид
+            getDevices(values) {
+              let rez = [];
+              if (values) {
+                values.forEach((element) => {
+                  rez.push(element['mac']);
+                });
+              }
+              return rez.join('<br>\n');
+            },
+
             //Форматирование даты
             getDateWithFormat(date_string) {
                 if (date_string) {

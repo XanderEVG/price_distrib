@@ -31,7 +31,8 @@ class DeviceRepository extends ServiceEntityRepository
         $get_query = $this->createQueryBuilder($this->alias);
         $this->filter($get_query, $filters);
         if ($shop_id) {
-            $get_query->andWhere($this->alias.".shop_id = :shop_id");
+            $alias = $this->alias;
+            $get_query->andWhere("($alias.shop_id = :shop_id or $alias.shop_id is null)");
             $get_query->setParameter("shop_id", $shop_id,ParameterType::INTEGER);
         }
 
@@ -44,11 +45,15 @@ class DeviceRepository extends ServiceEntityRepository
         return $get_query->getQuery()->getResult();
     }
 
-    public function getTotal(?array $filters)
+    public function getTotal(?array $filters, ?int $shop_id = null)
     {
         $alias = $this->alias;
         $total_query = $this->createQueryBuilder($alias);
         $this->filter($total_query, $filters);
+        if ($shop_id) {
+            $total_query->andWhere($this->alias.".shop_id = :shop_id");
+            $total_query->setParameter("shop_id", $shop_id,ParameterType::INTEGER);
+        }
         $total_query->select("count($alias.id)");
         try {
             return $total_query->getQuery()->getSingleScalarResult();

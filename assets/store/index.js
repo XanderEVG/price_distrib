@@ -22,9 +22,9 @@ export default new Vuex.Store({
         getCurrentShopName: state => state.shop_name,
     },
     mutations: {
-        setCurrentCityId: (state, city_id) => state.city_id = city_id,
+        setCurrentCityId: (state, city_id) => state.city_id = parseInt(city_id),
         setCurrentCityName: (state, city_name) => state.city_name = city_name,
-        setCurrentShopId: (state, shop_id) => state.shop_id = shop_id,
+        setCurrentShopId: (state, shop_id) => state.shop_id = parseInt(shop_id),
         setCurrentShopName: (state, shop_name) => state.shop_name = shop_name,
     },
     modules: {

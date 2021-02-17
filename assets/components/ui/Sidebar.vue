@@ -112,19 +112,29 @@
                 let items = [];
 
                 let user_roles = this.$store.getters.roles;
+                if (user_roles !== undefined) {
+                    if (user_roles.length > 0) {
+                        if (user_roles.includes('ROLE_USER')) {
+                            items.push({
+                              icon: 'table_chart',
+                              text: 'Сводная',
+                              to: 'StatisticInfoView',
+                              header: true,
+                              active: true,
+                            });
+                            items.push({icon: 'device_hub', text: 'Устройства', to: 'DevicesView'});
+                            items.push({icon: 'price_change', text: 'Товары и цены', to: 'ProductsView'});
+                        }
 
-                if (user_roles.includes('ROLE_USER')) {
-                    items.push({icon: 'table_chart', text: 'Сводная', to: 'StatisticInfoView', header: true, active: true,});
-                    items.push({icon: 'device_hub', text: 'Устройства', to: 'DevicesView'});
-                    items.push({icon: 'price_change', text: 'Товары и цены', to: 'ProductsView'});
+                        if (user_roles.includes('ROLE_ADMIN')) {
+                            items.push({icon: 'location_city', text: 'Города', to: 'CitiesView'});
+                            items.push({icon: 'shopping_cart', text: 'Магазины', to: 'ShopsView'});
+                            items.push({icon: 'supervisor_account', text: 'Пользователи', to: 'UsersView'});
+                            items.push({icon: 'settings', text: 'Настройки', to: 'SettingsView'});
+                        }
+                    }
                 }
 
-                if (user_roles.includes('ROLE_ADMIN')) {
-                    items.push({icon: 'location_city', text: 'Города', to: 'CitiesView'});
-                    items.push({icon: 'shopping_cart', text: 'Магазины', to: 'ShopsView'});
-                    items.push({icon: 'supervisor_account', text: 'Пользователи', to: 'UsersView'});
-                    items.push({icon: 'settings', text: 'Настройки', to: 'SettingsView'});
-                }
 
                 return items;
             }

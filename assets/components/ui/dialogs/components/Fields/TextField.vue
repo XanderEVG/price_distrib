@@ -7,6 +7,7 @@
         class="text-input"
         :rules="getRules(header)"
         :readonly="header.readonly"
+        @focus="(header.field_mask) ? checkMask($event, header.field_mask) : null"
     ></v-text-field>
 
     <v-text-field
@@ -58,7 +59,7 @@
 </template>
 
 <script>
-
+    import Inputmask from "inputmask";
     export default {
         props: ['header', 'editedItem', 'eventCreate'],
 
@@ -69,6 +70,17 @@
         },
 
         methods: {
+            // Установка маски, если необходимо
+            checkMask(event, mask) {
+              if(!mask) {
+                return;
+              }
+
+              let selector = event.target;
+              let im = new Inputmask(mask);
+              im.mask(selector);
+            },
+
             // Генерация логина по ФИО или почте
             generateLogin(of_field, value) {
                 // Если значение не задано

@@ -6,7 +6,7 @@
     no-data-text="Нет данных"
     color="teal"
     class="martop select"
-    item-text="name"
+    :item-text="getItemText(header)"
     item-value="id"
     solo
     flat
@@ -23,10 +23,20 @@
 export default {
   props: ["header", "editedItem", "tableName"],
   methods: {
+    getItemText(header) {
+      if(header.name === "devices") {
+        return "mac";
+      }
+      return "name";
+    },
     changed(field_name, value) {
       if (this.tableName === "users" && field_name === "cities") {
         let idx = value.map(a => a.id);
         this.$emit('changedCityIdx', idx)
+      }
+
+      if (this.tableName === "products" && field_name === "city") {
+        this.$emit('changedCityIdx', value.id)
       }
     }
   }

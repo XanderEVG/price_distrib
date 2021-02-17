@@ -44,11 +44,16 @@ class ShopRepository extends ServiceEntityRepository
         return $get_query->getQuery()->getResult();
     }
 
-    public function getTotal(?array $filters)
+    public function getTotal(?array $filters, ?int $city_id = null)
     {
         $alias = $this->alias;
         $total_query = $this->createQueryBuilder($alias);
         $this->filter($total_query, $filters);
+        if ($city_id) {
+            $total_query->andWhere($this->alias.".city_id = :city_id");
+            $total_query->setParameter("city_id", $city_id,ParameterType::INTEGER);
+        }
+
         $total_query->select("count($alias.id)");
         try {
             return $total_query->getQuery()->getSingleScalarResult();

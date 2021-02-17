@@ -59,6 +59,7 @@
                 headers: [],
                 items: [],
                 current_city_id: null,
+                cities: [],
 
                 showDialogDelete: false,
                 selected: null,
@@ -192,11 +193,19 @@
                 });
             },
 
-
-
             // Создание новой записи
             createItem() {
                 this.editedItem = Object.assign({}, this.defaultItem);
+                if (this.current_city_id) {
+                  let city = this.cities.filter(city => city.id === this.current_city_id);
+                  if (city.length > 0) {
+                    let name = city[0].name;
+                    this.editedItem.city = {
+                      'id': this.current_city_id,
+                      'name': name
+                    }
+                  }
+                }
                 this.showDialogSave = true;
             },
 
@@ -243,7 +252,7 @@
                         text: error,
                         type: 'error'
                     });
-                    console.log("delete users error:", error);
+                    console.log("delete shop error:", error);
                 });
             },
 
@@ -274,7 +283,7 @@
                             text: error,
                             type: 'error'
                         });
-                        console.log("save users error:", error);
+                        console.log("save shop error:", error);
                     });
                 })
             },

@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Common\Controller\DefaultController;
 use App\Entity\Device;
+use App\Entity\Product;
 use App\Entity\Shop;
 use App\Repository\CityRepository;
 use App\Repository\DeviceRepository;
+use App\Repository\ProductRepository;
 use App\Repository\ShopRepository;
 use App\Services\QuotesWiper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -19,7 +21,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class DeviceController extends DefaultController
+class ProductController extends DefaultController
 {
 
     /**
@@ -28,9 +30,19 @@ class DeviceController extends DefaultController
     private ShopRepository $shopRepository;
 
     /**
+     * @var CityRepository
+     */
+    private CityRepository $cityRepository;
+
+    /**
      * @var DeviceRepository
      */
     private DeviceRepository $deviceRepository;
+
+    /**
+     * @var ProductRepository
+     */
+    private ProductRepository $productRepository;
 
     /**
      * @var ValidatorInterface
@@ -51,26 +63,32 @@ class DeviceController extends DefaultController
      * VacationsController constructor.
      * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
+     * @param CityRepository $cityRepository
      * @param ShopRepository $shopRepository
      * @param DeviceRepository $deviceRepository
+     * @param ProductRepository $productRepository
      * @param Security $security
      */
     public function __construct(
         SerializerInterface $serializer,
         ValidatorInterface $validator,
+        CityRepository $cityRepository,
         ShopRepository $shopRepository,
         DeviceRepository $deviceRepository,
+        ProductRepository $productRepository,
         Security $security
     ) {
         $this->serializer = $serializer;
         $this->validator = $validator;
+        $this->cityRepository = $cityRepository;
         $this->shopRepository = $shopRepository;
         $this->deviceRepository = $deviceRepository;
+        $this->productRepository = $productRepository;
         $this->security = $security;
     }
 
     /**
-     * @Route("/api/device/get_list", name="device_get_list")
+     * @Route("/api/product/get_list", name="product_get_list")
      * @param Request $request
      * @return JsonResponse
      * @throws ExceptionInterface
@@ -81,34 +99,40 @@ class DeviceController extends DefaultController
         $sort = $request->get('sort') ?? array();
         $limit = $request->get('limit');
         $start = intval($request->get('start'));
+        $city_id = QuotesWiper::slashInteger($request->get('city_id'));
         $shop_id = QuotesWiper::slashInteger($request->get('shop_id'));
 
         if ($sort) {
             $sort = json_decode($sort, true);
         }
 
-        $devices = $this->deviceRepository->get($filters, $sort, $limit, $start, $shop_id);
-        $total = $this->deviceRepository->getTotal($filters, $shop_id);
+        $products = $this->productRepository->get($filters, $sort, $limit, $start, $city_id, $shop_id);
+        $total = $this->productRepository->getTotal($filters, $city_id, $shop_id);
         $responseData = [];
-        foreach ($devices as $device) {
+        foreach ($products as $product) {
             $responseData[] = $this->serializer->normalize(
-                $device,
+                $product,
                 false,
                 [
                     'attributes' => [
                         'id',
+                        'name',
+                        'mainUnit',
+                        'mainPrice',
+                        'secondUnit',
+                        'secondPrice',
+                        'city' => ['id', 'name'],
                         'shop' => ['id', 'name'],
-                        'product' => ['id', 'name'],
-                        'mac',
+                        'devices' => ['id', 'mac'],
                     ]
                 ]
             );
         }
-        return $this->json(array('success' => true, 'devices' => $responseData, 'total' => $total));
+        return $this->json(array('success' => true, 'products' => $responseData, 'total' => $total));
     }
 
     /**
-     * @Route("/api/device/save", name="create_or_edit_device", methods={"POST"})
+     * @Route("/api/product/save", name="create_or_edit_product", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      * @throws ExceptionInterface
@@ -116,21 +140,44 @@ class DeviceController extends DefaultController
     public function edit(Request $request): JsonResponse
     {
         $id = intval($request->get('id'));
-        $mac = filter_var($request->get('mac'), FILTER_SANITIZE_STRING);
+        $name = filter_var($request->get('name'), FILTER_SANITIZE_STRING);
+        $main_unit = filter_var($request->get('mainUnit'), FILTER_SANITIZE_STRING);
+        $second_unit = filter_var($request->get('secondUnit'), FILTER_SANITIZE_STRING);
+        $main_price = filter_var($request->get('mainPrice'), FILTER_SANITIZE_NUMBER_FLOAT);
+        $second_price = filter_var($request->get('secondPrice'), FILTER_SANITIZE_NUMBER_FLOAT);
+        $city = filter_var_array($request->get('city') ?? array(), FILTER_SANITIZE_STRING);
         $shop = filter_var_array($request->get('shop') ?? array(), FILTER_SANITIZE_STRING);
+        $devices = filter_var_array($request->get('devices') ?? array(), FILTER_SANITIZE_STRING);
 
         $constraints_array = [
-            'mac' => [
+            'name' => [
                 new Assert\NotBlank(),
                 new Assert\Length(['max' => 255])
+            ],
+            'main_unit' => [
+                new Assert\NotBlank(),
+                new Assert\Length(['max' => 255])
+            ],
+            'main_price' => [
+                new Assert\NotBlank(),
+                new Assert\Positive()
+            ],
+            'city' => [
+                new Assert\NotBlank(),
+                new Assert\Count(['min' => 1])
             ],
             'shop' => [
                 new Assert\NotBlank(),
                 new Assert\Count(['min' => 1])
             ],
+
+
         ];
         $validation_fields = [
-            'mac' => $mac,
+            'name' => $name,
+            'main_unit' => $main_unit,
+            'main_price' => $main_price,
+            'city' => $city,
             'shop' => $shop,
         ];
         $constraints = new Assert\Collection($constraints_array);
@@ -142,45 +189,66 @@ class DeviceController extends DefaultController
 
         $entityManager = $this->getDoctrine()->getManager();
         if ($id > 0) {
-            $device = $this->deviceRepository->find($id);
-            if (!$device) {
+            $product = $this->productRepository->find($id);
+            if (!$product) {
                 return $this->json(array(
                     'success' => false,
                     'msg' => "Не удалось обновить. Объект не существует."
                 ));
             }
         } else {
-            $device = new Device();
+            $product = new Product();
         }
 
-        $device->setMac($mac);
+        $product->setName($name);
+        $product->setMainUnit($main_unit);
+        $product->setMainPrice($main_price);
+        $product->setSecondUnit($second_unit);
+        $product->setSecondPrice($second_price);
+
+        $city_object = $this->cityRepository->find($city['id']);
+        if ($city_object) {
+            $product->setCity($city_object);
+        }
+
         $shop_object = $this->shopRepository->find($shop['id']);
         if ($shop_object) {
-            $device->setShop($shop_object);
+            $product->setShop($shop_object);
+        }
+
+        foreach ($devices as $device) {
+            $device_object = $this->deviceRepository->find($device['id']);
+            if ($device_object) {
+                $product->addDevice($device_object);
+            }
         }
 
         try {
-            $entityManager->persist($device);
+            $entityManager->persist($product);
             $entityManager->flush();
         } catch (UniqueConstraintViolationException $e) {
             return $this->json(array(
                 'success' => false,
-                'msg' => "Невозможно создать устройство, такой мак-адресс уже занят"
+                'msg' => "Невозможно создать товар"
             ));
-
         }
 
         $responseData = [
             'success' => true,
-            'device' => $this->serializer->normalize(
-                $device,
+            'product' => $this->serializer->normalize(
+                $product,
                 false,
                 [
                     'attributes' => [
                         'id',
+                        'name',
+                        'mainUnit',
+                        'mainPrice',
+                        'secondUnit',
+                        'secondPrice',
+                        'city' => ['id', 'name'],
                         'shop' => ['id', 'name'],
-                        'product' => ['id', 'name'],
-                        'mac',
+                        'devices' => ['id', 'mac'],
                     ]
                 ]
             )
@@ -189,7 +257,7 @@ class DeviceController extends DefaultController
     }
 
     /**
-     * @Route("/api/device/delete", name="delete_device", methods={"DELETE"})
+     * @Route("/api/product/delete", name="delete_product", methods={"DELETE"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -216,7 +284,7 @@ class DeviceController extends DefaultController
             );
         }
 
-        $this->deviceRepository->deleteById($ids);
+        $this->productRepository->deleteById($ids);
         return $this->json(array('success' => true));
 
     }

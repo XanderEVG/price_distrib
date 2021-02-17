@@ -31,9 +31,15 @@ class City
     */
     private ?Collection $shops;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="city")
+     */
+    private $products;
+
 
     public function __construct() {
         $this->shops = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
 
@@ -70,6 +76,36 @@ class City
     public function setShops(?array $shops): self
     {
         $this->shops = $shops;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setCity($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->removeElement($product)) {
+            // set the owning side to null (unless already changed)
+            if ($product->getCity() === $this) {
+                $product->setCity(null);
+            }
+        }
 
         return $this;
     }

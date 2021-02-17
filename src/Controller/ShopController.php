@@ -85,7 +85,7 @@ class ShopController extends DefaultController
         }
 
         $shops = $this->shopRepository->get($filters, $sort, $limit, $start, $city_id);
-        $total = $this->shopRepository->getTotal($filters);
+        $total = $this->shopRepository->getTotal($filters, $city_id);
         $responseData = [];
         foreach ($shops as $shop) {
             $responseData[] = $this->serializer->normalize(
