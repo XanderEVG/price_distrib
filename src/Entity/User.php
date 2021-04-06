@@ -60,7 +60,7 @@ class User implements UserInterface
      * @ManyToMany(targetEntity="City")
      * @JoinTable(name="users_cities",
      *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")},
-     *      inverseJoinColumns={@JoinColumn(name="city_id", referencedColumnName="id")}
+     *      inverseJoinColumns={@JoinColumn(name="city_id", referencedColumnName="id", onDelete="cascade")}
      *      )
      */
 
@@ -70,7 +70,7 @@ class User implements UserInterface
      * @ManyToMany(targetEntity="Shop")
      * @JoinTable(name="users_shops",
      *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id", onDelete="cascade")},
-     *      inverseJoinColumns={@JoinColumn(name="shop_id", referencedColumnName="id")}
+     *      inverseJoinColumns={@JoinColumn(name="shop_id", referencedColumnName="id", onDelete="cascade")}
      *      )
      */
     private ?Collection $shops;

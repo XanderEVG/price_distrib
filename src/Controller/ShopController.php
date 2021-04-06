@@ -7,6 +7,7 @@ use App\Entity\Shop;
 use App\Repository\CityRepository;
 use App\Repository\ShopRepository;
 use App\Services\QuotesWiper;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,18 +75,22 @@ class ShopController extends DefaultController
      */
     public function list(Request $request): JsonResponse
     {
-        $filters = $request->get('filters') ?? array();
-        $sort = $request->get('sort') ?? array();
-        $limit = $request->get('limit');
-        $start = intval($request->get('start'));
-        $city_id = QuotesWiper::slashInteger($request->get('city_id'));
+        $limit = intval(filter_var($request->get('limit', 10), FILTER_SANITIZE_NUMBER_INT));
+        $offset = intval(filter_var($request->get('offset', 0), FILTER_SANITIZE_NUMBER_INT));
+        $orderBy = $request->get('orderBy') ?? [];
+        $filterBy = $request->get('filterBy') ?? [];
 
-        if ($sort) {
-            $sort = json_decode($sort, true);
+        $city_id = QuotesWiper::slashInteger($request->get('city_id'));
+        if ($city_id) {
+            $filterBy[] = array(
+                'column' => 'city',
+                'operator' => '=',
+                'value' => $city_id,
+            );
         }
 
-        $shops = $this->shopRepository->get($filters, $sort, $limit, $start, $city_id);
-        $total = $this->shopRepository->getTotal($filters, $city_id);
+        $shops = $this->shopRepository->findWithSortAndFilters($filterBy, $orderBy, $limit, $offset);
+        $total = $this->shopRepository->countWithFilters($filterBy);
         $responseData = [];
         foreach ($shops as $shop) {
             $responseData[] = $this->serializer->normalize(
@@ -215,7 +220,12 @@ class ShopController extends DefaultController
             );
         }
 
-        $this->shopRepository->deleteById($ids);
+        try {
+            $this->shopRepository->deleteById($ids);
+        } catch (ForeignKeyConstraintViolationException $e) {
+            return $this->json(array('success' => false, 'msg' => "Нельзя удалять магазины с привязанными к нему товарами"));
+        }
+
         return $this->json(array('success' => true));
 
     }

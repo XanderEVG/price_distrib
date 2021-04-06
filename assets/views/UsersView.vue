@@ -188,11 +188,10 @@
         methods: {
             getCities() {
                 return new Promise((resolve, reject) => {
-                    axios.post('/api/city/get_list', {
-                        start: 0,
-                        limit: null,
-                    })
-                        .then(response => {
+                    axios.get('/api/city/get_list', {
+                        params: {},
+                        paramsSerializer: params => qs.stringify(params),
+                    }).then(response => {
                             resolve(response.data.cities);
                         }).catch(error => {
                         reject(error);
@@ -206,11 +205,12 @@
             },
             getShops() {
                 return new Promise((resolve, reject) => {
-                    axios.post('/api/shop/get_list', {
-                        start: 0,
-                        limit: null,
-                    })
-                        .then(response => {
+                    axios.get('/api/shop/get_list', {
+                        params: {
+                            sortBy: {column: 'username', direction: 'asc'}
+                        },
+                        paramsSerializer: params => qs.stringify(params),
+                    }).then(response => {
                             resolve(response.data.shops);
                         }).catch(error => {
                         reject(error);
@@ -241,13 +241,15 @@
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
                 };
-                axios.get('/api/users/get_list', { params: {
-                        start: data.start,
+                axios.get('/api/users/get_list', {
+                    params: {
+                        offset: data.start,
                         limit: data.limit,
-                        filters: data.filters,
-                        sort: data.sort,
-                        sort_dir: data.sort_dir,
-                }}).then(response => {
+                        filterBy: data.filterBy,
+                        orderBy: data.orderBy
+                    },
+                    paramsSerializer: params => qs.stringify(params),
+                }).then(response => {
                     this.loading = false;
 
                     if (response.data.success) {

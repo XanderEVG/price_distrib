@@ -11,9 +11,13 @@ import RulesMixin from './mixins/rules';
 import '../assets/css/style.sass';
 import 'vue2-datepicker/index.css';
 import 'vue2-datepicker/locale/ru';
+import vueHeadful from 'vue-headful';
 
 Vue.use(Vuetify);
 Vue.use(vClickOutside);
+
+Vue.component('vue-headful', vueHeadful);
+
 // Передаём в хидере каждого запроса CSRF-токен.
 axios.defaults.headers.common = {
     'X-CSRF-TOKEN': document.getElementsByName('csrf-token')[0].getAttribute('content'),

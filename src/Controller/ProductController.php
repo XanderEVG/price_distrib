@@ -95,19 +95,30 @@ class ProductController extends DefaultController
      */
     public function list(Request $request): JsonResponse
     {
-        $filters = $request->get('filters') ?? array();
-        $sort = $request->get('sort') ?? array();
-        $limit = $request->get('limit');
-        $start = intval($request->get('start'));
+        $limit = intval(filter_var($request->get('limit', 10), FILTER_SANITIZE_NUMBER_INT));
+        $offset = intval(filter_var($request->get('offset', 0), FILTER_SANITIZE_NUMBER_INT));
+        $orderBy = $request->get('orderBy') ?? [];
+        $filterBy = $request->get('filterBy') ?? [];
+
         $city_id = QuotesWiper::slashInteger($request->get('city_id'));
         $shop_id = QuotesWiper::slashInteger($request->get('shop_id'));
-
-        if ($sort) {
-            $sort = json_decode($sort, true);
+        if ($city_id) {
+            $filterBy[] = array(
+                'column' => 'city',
+                'operator' => '=',
+                'value' => $city_id,
+            );
+        }
+        if ($shop_id) {
+            $filterBy[] = array(
+                'column' => 'shop',
+                'operator' => '=',
+                'value' => $shop_id,
+            );
         }
 
-        $products = $this->productRepository->get($filters, $sort, $limit, $start, $city_id, $shop_id);
-        $total = $this->productRepository->getTotal($filters, $city_id, $shop_id);
+        $products = $this->productRepository->findWithSortAndFilters($filterBy, $orderBy, $limit, $offset);
+        $total = $this->productRepository->countWithFilters($filterBy);
         $responseData = [];
         foreach ($products as $product) {
             $responseData[] = $this->serializer->normalize(
@@ -117,6 +128,7 @@ class ProductController extends DefaultController
                     'attributes' => [
                         'id',
                         'name',
+                        'productCode',
                         'mainUnit',
                         'mainPrice',
                         'secondUnit',
@@ -141,14 +153,18 @@ class ProductController extends DefaultController
     {
         $id = intval($request->get('id'));
         $name = filter_var($request->get('name'), FILTER_SANITIZE_STRING);
+        $product_code = filter_var($request->get('productCode'), FILTER_SANITIZE_STRING);
         $main_unit = filter_var($request->get('mainUnit'), FILTER_SANITIZE_STRING);
         $second_unit = filter_var($request->get('secondUnit'), FILTER_SANITIZE_STRING);
-        $main_price = filter_var($request->get('mainPrice'), FILTER_SANITIZE_NUMBER_FLOAT);
-        $second_price = filter_var($request->get('secondPrice'), FILTER_SANITIZE_NUMBER_FLOAT);
+        $main_price = floatval($request->get('mainPrice'));
+        $second_price = floatval($request->get('secondPrice'));
         $city = filter_var_array($request->get('city') ?? array(), FILTER_SANITIZE_STRING);
         $shop = filter_var_array($request->get('shop') ?? array(), FILTER_SANITIZE_STRING);
         $devices = filter_var_array($request->get('devices') ?? array(), FILTER_SANITIZE_STRING);
 
+        if ($second_unit == null) {
+            $second_unit = "";
+        }
         $constraints_array = [
             'name' => [
                 new Assert\NotBlank(),
@@ -201,6 +217,7 @@ class ProductController extends DefaultController
         }
 
         $product->setName($name);
+        $product->setProductCode($product_code);
         $product->setMainUnit($main_unit);
         $product->setMainPrice($main_price);
         $product->setSecondUnit($second_unit);
@@ -216,12 +233,17 @@ class ProductController extends DefaultController
             $product->setShop($shop_object);
         }
 
-        foreach ($devices as $device) {
-            $device_object = $this->deviceRepository->find($device['id']);
-            if ($device_object) {
-                $product->addDevice($device_object);
+        if ($devices) {
+            foreach ($devices as $device) {
+                $device_object = $this->deviceRepository->find($device['id']);
+                if ($device_object) {
+                    $product->addDevice($device_object);
+                }
             }
+        } else {
+            $product->setDevice(null);
         }
+
 
         try {
             $entityManager->persist($product);
@@ -242,6 +264,7 @@ class ProductController extends DefaultController
                     'attributes' => [
                         'id',
                         'name',
+                        'productCode',
                         'mainUnit',
                         'mainPrice',
                         'secondUnit',

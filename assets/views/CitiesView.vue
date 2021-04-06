@@ -122,24 +122,26 @@
                 axios.defaults.headers.common = {
                     'X-CSRF-TOKEN': document.getElementsByName("csrf-token")[0].getAttribute('content')
                 };
-                axios.get('/api/city/get_list', { params: {
-                        start: data.start,
+                axios.get('/api/city/get_list', {
+                    params: {
+                        offset: data.start,
                         limit: data.limit,
-                        filters: data.filters,
-                        sort: data.sort,
-                        sort_dir: data.sort_dir,
-                    }}).then(response => {
-                    this.loading = false;
+                        filterBy: data.filterBy,
+                        orderBy: data.orderBy
+                    },
+                    paramsSerializer: params => qs.stringify(params),
+                }).then(response => {
+                      this.loading = false;
 
-                    if (response.data.success) {
-                        this.items = response.data.cities;
-                        this.total = response.data.total;
-                    } else {
-                        this.showNotification({
-                            text: (response.data.msg !== '') ? response.data.msg : 'Неизвестная ошибка',
-                            type: 'error'
-                        });
-                    }
+                      if (response.data.success) {
+                          this.items = response.data.cities;
+                          this.total = response.data.total;
+                      } else {
+                          this.showNotification({
+                              text: (response.data.msg !== '') ? response.data.msg : 'Неизвестная ошибка',
+                              type: 'error'
+                          });
+                      }
                 }).catch(error => {
                     this.loading = false;
                     this.showNotification({

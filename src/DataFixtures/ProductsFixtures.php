@@ -40,6 +40,7 @@ class ProductsFixtures extends Fixture
 
         foreach (range(0, 20) as $number) {
             $product = new Product();
+            $product->setProductCode("#000$number");
             $product->setName("Товар $number");
             $product->setMainUnit("шт");
             $product->setMainPrice(rand(1000, 100000)/100);

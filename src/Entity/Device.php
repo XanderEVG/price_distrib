@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DeviceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,7 +19,8 @@ class Device
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Shop::class, inversedBy="mac")
+     * @ORM\ManyToOne(targetEntity=Shop::class, inversedBy="devices")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $shop;
 
@@ -34,9 +36,9 @@ class Device
 
     /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="devices")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $product;
-
 
     public function getId(): ?int
     {

@@ -2,6 +2,11 @@
 
 namespace App\Repository;
 
+use App\Common\Repository\ExtendedFind\ColumnMapper;
+use App\Common\Repository\ExtendedFind\FindWithFilter;
+use App\Common\Repository\ExtendedFind\FindWithFilterAndSort;
+use App\Common\Repository\ExtendedFind\FindWithSort;
+use App\Entity\City;
 use App\Entity\Shop;
 use App\Services\QuotesWiper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -17,8 +22,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Shop[]    findAll()
  * @method Shop[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ShopRepository extends ServiceEntityRepository
+class ShopRepository extends ServiceEntityRepository implements FindWithFilterAndSort
 {
+    use FindWithFilter;
+    use FindWithSort;
+
     private string $alias = 's';
 
     public function __construct(ManagerRegistry $registry)
@@ -26,96 +34,35 @@ class ShopRepository extends ServiceEntityRepository
         parent::__construct($registry, Shop::class);
     }
 
-    public function get(?array $filters, ?array $sort, ?int $limit = null, ?int $start = 0, ?int $city_id = null)
+    private function columnMaps(): array
     {
-        $get_query = $this->createQueryBuilder($this->alias);
-        $this->filter($get_query, $filters);
-        if ($city_id) {
-            $get_query->andWhere($this->alias.".city_id = :city_id");
-            $get_query->setParameter("city_id", $city_id,ParameterType::INTEGER);
-        }
-
-        $this->sort($get_query, $sort);
-
-
-        $get_query->setMaxResults($limit);
-        $get_query->setFirstResult($start);
-
-        return $get_query->getQuery()->getResult();
+        return array();
     }
 
-    public function getTotal(?array $filters, ?int $city_id = null)
+    public function findWithSortAndFilters(array $filterBy, array $orderBy, $limit = 10, $offset = 0)
     {
         $alias = $this->alias;
-        $total_query = $this->createQueryBuilder($alias);
-        $this->filter($total_query, $filters);
-        if ($city_id) {
-            $total_query->andWhere($this->alias.".city_id = :city_id");
-            $total_query->setParameter("city_id", $city_id,ParameterType::INTEGER);
-        }
 
-        $total_query->select("count($alias.id)");
-        try {
-            return $total_query->getQuery()->getSingleScalarResult();
-        } catch (NoResultException $e) {
-            return 0;
-        } catch (NonUniqueResultException $e) {
-            return 0;
-        }
+        $queryBuilder = $this->createQueryBuilder($alias);
+        $queryBuilder->select();
+        $filterBy = ColumnMapper::mapColumns($filterBy, $this->columnMaps(), $alias);
+        $orderBy = ColumnMapper::mapColumns($orderBy, $this->columnMaps(), $alias);
+        $queryBuilder = $this->addFiltersToQuery($queryBuilder, $filterBy, []);
+        $queryBuilder = $this->addSortToQuery($queryBuilder, $orderBy);
+        $queryBuilder->setMaxResults($limit)->setFirstResult($offset);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 
-    private function filter(QueryBuilder $query, ?array $filters)
+    public function countWithFilters(array $filterBy)
     {
         $alias = $this->alias;
-        foreach ($filters as $column => $value) {
-            switch ($column) {
-                case 'id':
-                    $query->andWhere("$alias.id = :id");
-                    $query->setParameter("id", $value);
-                    break;
 
-                case 'name':
-                    $value = mb_strtolower($value);
-                    $query->andWhere("lower($alias.name) LIKE :name");
-                    $query->setParameter("name", "%$value%");
-                    break;
-
-                case 'address':
-                    $query->addOrderBy("lower($alias.address) LIKE :address");
-                    $query->setParameter("address", "%$value%");
-                    break;
-
-                case 'city':
-                    $value = mb_strtolower($value);
-                    $query->andWhere("$alias.city_id in :city_idx");
-                    $query->setParameter("city_idx", "$value");
-                    break;
-            }
-        }
-    }
-
-    private function sort(QueryBuilder $query, ?array $sort)
-    {
-        $alias = $this->alias;
-        foreach ($sort as $column => $dir) {
-            switch ($column) {
-                case 'id':
-                    $query->addOrderBy("$alias.id", $dir);
-                    break;
-
-                case 'name':
-                    $query->addOrderBy("$alias.name", $dir);
-                    break;
-
-                case 'address':
-                    $query->addOrderBy("$alias.address", $dir);
-                    break;
-
-                case 'city':
-                    $query->addOrderBy("$alias.city_id", $dir);
-                    break;
-            }
-        }
+        $queryBuilder = $this->createQueryBuilder($alias);
+        $queryBuilder->select("count($alias.id)");
+        $filterBy = ColumnMapper::mapColumns($filterBy, $this->columnMaps(), $alias);
+        $queryBuilder = $this->addFiltersToQuery($queryBuilder, $filterBy, []);
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -127,10 +74,12 @@ class ShopRepository extends ServiceEntityRepository
      */
     public function deleteById(array $ids): void
     {
-        $queryBuilder = $this->createQueryBuilder('shop');
+        $alias = $this->alias;
+
+        $queryBuilder = $this->createQueryBuilder($alias);
         $queryBuilder
-            ->delete(Shop::class, 's')
-            ->where($queryBuilder->expr()->in('s.id', ':ids'))
+            ->delete(Shop::class, $alias)
+            ->where($queryBuilder->expr()->in("$alias.id", ':ids'))
             ->setParameter('ids', $ids)
             ->getQuery()
             ->execute();

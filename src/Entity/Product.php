@@ -68,6 +68,11 @@ class Product
      */
     private $devices;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $product_code;
+
     public function __construct()
     {
         $this->devices = new ArrayCollection();
@@ -171,11 +176,32 @@ class Product
         return $this->devices;
     }
 
+    /**
+     * @param Device|null $device
+     * @return $this
+     */
+    public function setDevice(?Device $device): self
+    {
+        $exist_devices = $this->getDevices();
+        foreach ($exist_devices as $exist_device) {
+            $this->removeDevice($exist_device);
+        }
+
+        if ($device) {
+            $this->devices[] = $device;
+            $device->setProduct($this);
+            $device->setShop($this->getShop());
+        }
+
+        return $this;
+    }
+
     public function addDevice(Device $device): self
     {
         if (!$this->devices->contains($device)) {
             $this->devices[] = $device;
             $device->setProduct($this);
+            $device->setShop($this->getShop());
         }
 
         return $this;
@@ -189,6 +215,18 @@ class Product
                 $device->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getProductCode(): ?string
+    {
+        return $this->product_code;
+    }
+
+    public function setProductCode(string $product_code): self
+    {
+        $this->product_code = $product_code;
 
         return $this;
     }

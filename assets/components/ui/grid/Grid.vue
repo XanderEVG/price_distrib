@@ -1,19 +1,19 @@
 <template>
     <v-container>
         <v-data-table
-                :items="items"
-                :items-per-page="25"
-                class="grid_table"
-                item-key="id"
-                loading-text="Загрузка данных..."
-                no-data-text="Нет записей"
-                no-results-text="Неправильно сформированы заголовки"
-                :options.sync="pagination"
-                :server-items-length="total"
-                :loading="loading"
-                :class="'table_' + tableName + '_class'"
-                :headers-length="headerLength"
-                :footer-props="{
+            :items="items"
+            :items-per-page="25"
+            class="grid_table"
+            item-key="id"
+            loading-text="Загрузка данных..."
+            no-data-text="Нет записей"
+            no-results-text="Неправильно сформированы заголовки"
+            :options.sync="pagination"
+            :server-items-length="total"
+            :loading="loading"
+            :class="'table_' + tableName + '_class'"
+            :headers-length="headerLength"
+            :footer-props="{
                     showFirstLastPage: true,
                     itemsPerPageText: 'Записей на странице',
                     itemsPerPageOptions: [5,10,15,20,25,50,{ text: 'Все', value: null }],
@@ -22,28 +22,28 @@
             <!--Устанавливаем цвет прогрессбара-->
             <template v-slot:progress>
                 <v-progress-linear
-                        color="teal"
-                        :height="3"
-                        indeterminate
+                    color="teal"
+                    :height="3"
+                    indeterminate
                 ></v-progress-linear>
             </template>
 
             <!--Заголовки-->
             <template v-slot:header>
-                <tr class="table_header" >
+                <tr class="table_header">
                     <th style="width: 53px;">
                         <v-checkbox
-                                :input-value="selectedAll"
-                                :indeterminate="indeterminate"
-                                color="teal"
-                                hide-details
-                                class="ma-0"
-                                @click.stop="toggleAll"
+                            :input-value="selectedAll"
+                            :indeterminate="indeterminate"
+                            color="teal"
+                            hide-details
+                            class="ma-0"
+                            @click.stop="toggleAll"
                         ></v-checkbox>
                     </th>
                     <th
-                            v-for="header in visibleHeaders"
-                            :class="[
+                        v-for="header in visibleHeaders"
+                        :class="[
                                'text-start',
                                 header.sortable === true ? 'sortable' : 'not_sortable',
                                pagination.descending ? 'desc' : 'asc',
@@ -53,8 +53,8 @@
                         <v-layout row pr-3>
                             <v-flex grow pa-3>
                                 <v-icon class="sort_arrow" small v-if="header.sortable !== false">arrow_upward</v-icon>
-                                <div class="sort_arrow_spacer"  v-if="header.sortable !== false"></div>
-                                <span @click="changeSort(header.name, header.sortable)">{{header.ru_name}}</span>
+                                <div class="sort_arrow_spacer" v-if="header.sortable !== false"></div>
+                                <span @click="changeSort(header.name, header.sortable)">{{ header.ru_name }}</span>
                             </v-flex>
                         </v-layout>
                     </th>
@@ -67,19 +67,19 @@
                 <tr :key="item.id">
                     <td>
                         <v-checkbox
-                                :value="item.id"
-                                v-model="selected"
-                                color="teal"
-                                hide-details
-                                class="ma-0"
-                                @change="indeterminate = true"
+                            :value="item.id"
+                            v-model="selected"
+                            color="teal"
+                            hide-details
+                            class="ma-0"
+                            @change="indeterminate = true"
                         ></v-checkbox>
                     </td>
                     <td v-for="header in visibleHeaders" @dblclick="editItem(item)">
                         <item-field-grid
-                                :header="header"
-                                :table_name="tableName"
-                                :item="item"
+                            :header="header"
+                            :table_name="tableName"
+                            :item="item"
                         ></item-field-grid>
                     </td>
                 </tr>
@@ -108,9 +108,17 @@
                     </v-tooltip>
 
                     <refresh-btn @getDataFromApi="getDataFromApi"></refresh-btn>
+
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                            <v-btn :class="[show_empty_devices ? 'btn_pressed' : '' ]" text icon @click="showEmptyDevices" v-on="on">
+                                <v-icon>check</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Показать только не привязанные устройства</span>
+                    </v-tooltip>
                 </v-toolbar>
             </template>
-
 
 
             <!--Устанавливаем текст пагинатора-->
@@ -122,156 +130,163 @@
 </template>
 
 <script>
-    import RefreshBtn from "./grid_toolbar/RefreshBtn.vue";
-    import ItemFieldGrid from "./ItemFieldGrid.vue";
-    import _ from 'lodash';
+import RefreshBtn from "./grid_toolbar/RefreshBtn.vue";
+import ItemFieldGrid from "./ItemFieldGrid.vue";
+import _ from 'lodash';
 
-    export default {
-        components: {
-            RefreshBtn,
-            ItemFieldGrid
+export default {
+    components: {
+        RefreshBtn,
+        ItemFieldGrid
+    },
+    props: {
+        headers: {
+            type: Array,
+            required: true,
         },
-        props: {
-            headers: {
-                type: Array,
-                required: true,
-            },
-            items: Array,
-            total: {
-                type: Number,
-                required: true,
-            },
-            tableName: String,
-            loading: Boolean,
-            editedItem: Object,
+        items: Array,
+        total: {
+            type: Number,
+            required: true,
         },
+        tableName: String,
+        loading: Boolean,
+        editedItem: Object,
+    },
 
-        data() {
-            return {
-                selected: [],
-                pagination: {
-                    sortBy: "id",
-                    descending: false,
-                    page: 1,
-                },
-                filters: {},
-                indeterminate: false,
-                selectedAll: false,
-                filtersEnabled: [],
-            };
-        },
-        created: function () {
-          this.getDataFromApiDebounced = _.debounce(this.getDataFromApi, 50)
-        },
-        computed: {
-            // Видимые колонки
-            visibleHeaders() {
-                return this.headers.filter(h => h.show_in_grid);
-            },
-            // Расчет количества столбцов, чтобы в случае отсутствия записей сообщение растягивалось на всю длину строки
-            headerLength() {
-                return this.headers.length + 1;
-            },
-        },
-
-        watch: {
-            // Событие изменения пагинации
+    data() {
+        return {
+            selected: [],
             pagination: {
-                handler() {
-                    this.getDataFromApiDebounced();
-                },
-                deep: true,
+                sortBy: "id",
+                descending: false,
+                page: 1,
             },
+            filters: {},
+            indeterminate: false,
+            selectedAll: false,
+            filtersEnabled: [],
+            show_empty_devices: false,
+        };
+    },
+    created: function () {
+        this.getDataFromApiDebounced = _.debounce(this.getDataFromApi, 50);
+        this.$parent.$on('update', this.getDataFromApi);
+    },
+    computed: {
+        // Видимые колонки
+        visibleHeaders() {
+            return this.headers.filter(h => h.show_in_grid);
+        },
+        // Расчет количества столбцов, чтобы в случае отсутствия записей сообщение растягивалось на всю длину строки
+        headerLength() {
+            return this.headers.length + 1;
+        },
+    },
 
-            selected(val) {
-                if (!val.length) {
-                    this.indeterminate = false;
-                    this.selectedAll = false;
-                }
+    watch: {
+        // Событие изменения пагинации
+        pagination: {
+            handler() {
+                this.getDataFromApiDebounced();
             },
+            deep: true,
         },
 
-        methods: {
-            // Запрашиваем список записей согласно пагинации
-            getDataFromApi() {
-              const {sortBy, descending, page, itemsPerPage} = this.pagination;
+        selected(val) {
+            if (!val.length) {
+                this.indeterminate = false;
+                this.selectedAll = false;
+            }
+        },
+    },
 
-              let start = (page - 1) * itemsPerPage,
-                  limit = itemsPerPage;
-              this.$emit("getDataFromApi", {
+    methods: {
+        // Запрашиваем список записей согласно пагинации
+        getDataFromApi() {
+            const {sortBy, descending, page, itemsPerPage} = this.pagination;
+
+            let start = (page - 1) * itemsPerPage,
+                limit = itemsPerPage;
+            this.$emit("getDataFromApi", {
                 start,
                 limit,
-                sort: {[sortBy]: descending ? 'desc' : 'asc'},
-                filters: null
-              });
-            },
+                orderBy: [{column: sortBy, direction: descending ? 'desc' : 'asc'}],
+                filterBy: []
+            });
+        },
 
-            // Удаление записи
-            deleteItem(item) {
-                if (!item) {
-                    if (!this.selected.length) {
-                        this.showNotification({
-                            text: "Выберите хотя бы одну запись",
-                            type: "warning",
-                        });
-                        return;
-                    }
-                }
-                this.$emit("deleteItem", this.selected);
-            },
-
-            // Создание новой записи
-            createItem() {
-                this.$emit("createItem");
-            },
-
-            // Редактирование записи
-            editItem(item) {
-                this.$emit("editItem", {
-                    editedIndex: this.items.indexOf(item),
-                    editedItem: Object.assign({}, item),
-                });
-            },
-
-            // Выделение всех записей
-            toggleAll() {
-                this.indeterminate = false;
-
-                if (this.selected.length) {
-                    this.selected = [];
-                    this.selectedAll = false;
-                } else {
-                    this.items.forEach((item) => {
-                        this.selected.push(item.id);
+        // Удаление записи
+        deleteItem(item) {
+            if (!item) {
+                if (!this.selected.length) {
+                    this.showNotification({
+                        text: "Выберите хотя бы одну запись",
+                        type: "warning",
                     });
-                    this.selectedAll = true;
-                }
-            },
-
-            // Сортировка. Если явно не указан параметр sort, то делается toggle в случае повторной сортировки
-            changeSort(column, sortable, sort) {
-                if (sortable !== true) {
                     return;
                 }
+            }
+            this.$emit("deleteItem", this.selected);
+        },
 
-                if (this.pagination.sortBy === column) {
-                    this.pagination.descending =
-                        sort !== undefined ? sort : !this.pagination.descending;
-                } else {
-                    this.pagination.sortBy = column;
-                    this.pagination.descending = false;
-                }
-            },
+        showEmptyDevices(item) {
+            this.$emit("showEmptyDevices");
+            this.show_empty_devices = !this.show_empty_devices;
+        },
 
-            // Уведомление об ошибках
-            showErrorNotification(msg) {
-                this.showNotification({
-                    text: msg,
-                    type: "error",
+        // Создание новой записи
+        createItem() {
+            this.$emit("createItem");
+        },
+
+        // Редактирование записи
+        editItem(item) {
+            this.$emit("editItem", {
+                editedIndex: this.items.indexOf(item),
+                editedItem: Object.assign({}, item),
+            });
+        },
+
+        // Выделение всех записей
+        toggleAll() {
+            this.indeterminate = false;
+
+            if (this.selected.length) {
+                this.selected = [];
+                this.selectedAll = false;
+            } else {
+                this.items.forEach((item) => {
+                    this.selected.push(item.id);
                 });
-            },
-        }
+                this.selectedAll = true;
+            }
+        },
+
+        // Сортировка. Если явно не указан параметр sort, то делается toggle в случае повторной сортировки
+        changeSort(column, sortable, sort) {
+            if (sortable !== true) {
+                return;
+            }
+
+            if (this.pagination.sortBy === column) {
+                this.pagination.descending =
+                    sort !== undefined ? sort : !this.pagination.descending;
+            } else {
+                this.pagination.sortBy = column;
+                this.pagination.descending = false;
+            }
+        },
+
+        // Уведомление об ошибках
+        showErrorNotification(msg) {
+            this.showNotification({
+                text: msg,
+                type: "error",
+            });
+        },
     }
+}
 </script>
 
 <style scoped>

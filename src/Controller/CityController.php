@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Common\Controller\DefaultController;
 use App\Entity\City;
 use App\Repository\CityRepository;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,18 +65,13 @@ class CityController extends DefaultController
      */
     public function list(Request $request): JsonResponse
     {
-        $filters = $request->get('filters') ?? array();
-        $sort = $request->get('sort') ?? array();
-        $limit = $request->get('limit');
-        $start = intval($request->get('start'));
+        $limit = intval(filter_var($request->get('limit', 10), FILTER_SANITIZE_NUMBER_INT));
+        $offset = intval(filter_var($request->get('offset', 0), FILTER_SANITIZE_NUMBER_INT));
+        $orderBy = $request->get('orderBy') ?? [];
+        $filterBy = $request->get('filterBy') ?? [];
 
-        if ($sort) {
-            $sort = json_decode($sort, true);
-        }
-
-
-        $cities = $this->cityRepository->get($filters, $sort, $limit, $start);
-        $total = $this->cityRepository->getTotal($filters);
+        $cities = $this->cityRepository->findWithSortAndFilters($filterBy, $orderBy, $limit, $offset);
+        $total = $this->cityRepository->countWithFilters($filterBy);
         $responseData = [];
         foreach ($cities as $city) {
             $responseData[] = $this->serializer->normalize(
@@ -189,7 +185,11 @@ class CityController extends DefaultController
             );
         }
 
-        $this->cityRepository->deleteById($ids);
+        try {
+            $this->cityRepository->deleteById($ids);
+        } catch (ForeignKeyConstraintViolationException $e) {
+            return $this->json(array('success' => false, 'msg' => "Нельзя удалять города с привязанными к нему товарами"));
+        }
         return $this->json(array('success' => true));
 
     }

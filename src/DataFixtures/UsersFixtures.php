@@ -30,12 +30,13 @@ class UsersFixtures extends Fixture
 
         $user = new User();
         $user->setUsername("admin");
+        $user->setFio("Админов Админ Админович");
         $user->setEmail("XanderEVG@gmail.com");
         $user->setRoles(["ROLE_USER", "ROLE_ADMIN"]);
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
                 $user,
-                '1111'
+                'adm0x001'
             )
         );
 

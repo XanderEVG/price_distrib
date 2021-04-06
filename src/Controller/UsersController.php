@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\CityRepository;
 use App\Repository\ShopRepository;
 use App\Repository\UserRepository;
+use App\Services\QuotesWiper;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use http\Client\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -93,17 +94,13 @@ class UsersController extends DefaultController
      */
     public function list(Request $request): JsonResponse
     {
-        $filters = $request->get('filters') ?? array();
-        $sort = $request->get('sort') ?? array();
-        $limit = $request->get('limit');
-        $start = intval($request->get('start'));
+        $limit = intval(filter_var($request->get('limit', 10), FILTER_SANITIZE_NUMBER_INT));
+        $offset = intval(filter_var($request->get('offset', 0), FILTER_SANITIZE_NUMBER_INT));
+        $orderBy = $request->get('orderBy') ?? [];
+        $filterBy = $request->get('filterBy') ?? [];
 
-        if ($sort) {
-            $sort = json_decode($sort, true);
-        }
-
-        $users = $this->userRepository->get($filters, $sort, $limit, $start);
-        $total = $this->userRepository->getTotal($filters);
+        $users = $this->userRepository->findWithSortAndFilters($filterBy, $orderBy, $limit, $offset);
+        $total = $this->userRepository->countWithFilters($filterBy);
         $responseData = [];
         foreach ($users as $user) {
             $responseData[] = $this->serializer->normalize(

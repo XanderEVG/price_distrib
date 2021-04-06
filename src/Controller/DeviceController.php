@@ -77,18 +77,28 @@ class DeviceController extends DefaultController
      */
     public function list(Request $request): JsonResponse
     {
-        $filters = $request->get('filters') ?? array();
-        $sort = $request->get('sort') ?? array();
-        $limit = $request->get('limit');
-        $start = intval($request->get('start'));
-        $shop_id = QuotesWiper::slashInteger($request->get('shop_id'));
+        $limit = intval(filter_var($request->get('limit', 10), FILTER_SANITIZE_NUMBER_INT));
+        $offset = intval(filter_var($request->get('offset', 0), FILTER_SANITIZE_NUMBER_INT));
+        $orderBy = $request->get('orderBy') ?? [];
+        $filterBy = $request->get('filterBy') ?? [];
 
-        if ($sort) {
-            $sort = json_decode($sort, true);
+        $shop_id = $request->get('shop_id');
+        if ($shop_id == null) {
+            $filterBy[] = array(
+                'column' => 'shop',
+                'operator' => 'is',
+                'value' => null,
+            );
+        } elseif ($shop_id !== 'all') {
+            $filterBy[] = array(
+                'column' => 'shop',
+                'operator' => '=',
+                'value' => $shop_id,
+            );
         }
 
-        $devices = $this->deviceRepository->get($filters, $sort, $limit, $start, $shop_id);
-        $total = $this->deviceRepository->getTotal($filters, $shop_id);
+        $devices = $this->deviceRepository->findWithSortAndFilters($filterBy, $orderBy, $limit, $offset);
+        $total = $this->deviceRepository->countWithFilters($filterBy);
         $responseData = [];
         foreach ($devices as $device) {
             $responseData[] = $this->serializer->normalize(
@@ -124,14 +134,9 @@ class DeviceController extends DefaultController
                 new Assert\NotBlank(),
                 new Assert\Length(['max' => 255])
             ],
-            'shop' => [
-                new Assert\NotBlank(),
-                new Assert\Count(['min' => 1])
-            ],
         ];
         $validation_fields = [
             'mac' => $mac,
-            'shop' => $shop,
         ];
         $constraints = new Assert\Collection($constraints_array);
         $violations = $this->validator->validate($validation_fields, $constraints);
@@ -154,10 +159,15 @@ class DeviceController extends DefaultController
         }
 
         $device->setMac($mac);
-        $shop_object = $this->shopRepository->find($shop['id']);
-        if ($shop_object) {
-            $device->setShop($shop_object);
+        if ($shop) {
+            $shop_object = $this->shopRepository->find($shop['id']);
+            if ($shop_object) {
+                $device->setShop($shop_object);
+            }
+        } else {
+            $device->setShop(null);
         }
+
 
         try {
             $entityManager->persist($device);
